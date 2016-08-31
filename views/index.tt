@@ -1,207 +1,198 @@
+
+<div id="sidebar">
+  <div id="header">
+    <h1>WebAtoms</h1>
+    <h2>Convert crystallographic data into a <tt>feff.inp</tt> file</h2>
+  </div>
+
   
-<!-- 
-    Credit goes to the Ruby on Rails team for this page which
-    has been heavily based on the default Rails page that is
-    built with a scaffolded application.
+  &nbsp;<strong>Links:</strong>
+  <a href="http://bruceravel.github.io/demeter/">Demeter homepage</a>&nbsp;&#183;
+  <a href="https://github.com/bruceravel/demeter/">Demeter @ GitHub</a>&nbsp;&#183;
+  <a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/">Ifeffit Mailing List</a>&nbsp;&#183;
+  <a href="http://xraypy.github.io/xraylarch/">Larch homepage</a>&nbsp;&#183;
+  <a href="https://github.com/newville/ifeffit">Ifeffit @ GitHub</a>&nbsp;&#183;
+  <a href="http://xafs.org/">xafs.org</a>
+  <br>
+  &nbsp;<strong>Manuals:</strong>
+  <a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
+  <a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>&nbsp;&#183;
+  <a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
+  <a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>
+    
+  <p></p>
+</div>
 
-    Thanks a lot to them for their work.
-
-    See Ruby on Rails if you want a kickass framework in Ruby:
-    http://www.rubyonrails.org/
--->
 
 <div id="page">
-      <div id="sidebar">
-        <ul id="sidebar-items">
-          <li>
-            <h3>Links</h3>
-            <ul class="links">
-              <li><a href="http://bruceravel.github.io/demeter/">Demeter homepage</a></li>
-              <li><a href="https://github.com/bruceravel/demeter/">Demeter @ GitHub</a></li>
-              <li><a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/">Ifeffit Mailing List</a></li>
-	      <li><a href="http://xraypy.github.io/xraylarch/">Larch homepage</a></li>
-	      <li><a href="https://github.com/newville/ifeffit">Ifeffit @ GitHub</a></li>
-	      <li><a href="http://xafs.org/">xafs.org</a></li>
- 	    </ul>
-          </li>
-          
-          <li>
-            <h3>Manuals</h3>
 
-            <ul class="links">
-              <li><a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a></li>
-              <li><a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a></li>
-              <li><a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a></li>
-              <li><a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a></li>
-            </ul>
-          </li>
+  <div id="content">
 
+    <div id="getting-started">
+      <form>
+	<div id="lattice">
+	  Space group:&nbsp;<input type="text" name="space" size="10"
+	       	     		   title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
+				   value=<% space %>>&nbsp;&nbsp;
+	  Output:&nbsp;
+	  <select name="output" title="Specify the kind of output file">
+	    <option value="feff">Feff input file</option>
+	    <option value="atoms">Atoms input file</option>
+	    <option value="p1">Atoms input, P1 space group</option>
+	    <option value="space">Spacegroup description</option>
+	    <option value="abs">Absorption calculations</option>
+	    <option value="xyz">XYZ format</option>
+	    <option value="alc">Alchemy format</option>
+	    <option value="over">Overfull unit cell</option>
+	    <option value="object">Atoms object (diagnostic)</option>
+	  </select>&nbsp;&nbsp;
+	</div>
+	<div id="lattice">
+	  Edge:&nbsp;
+	  <select name="edge" title="Absorption edge of the measurement">
+	    <option value="K">K</option>
+	    <option value="L3">L3</option>
+	    <option value="L2">L2</option>
+	    <option value="L1">L1</option>
+	  </select>&nbsp;&nbsp;
+	  Feff Style:&nbsp;
+	  <select name="style" title="Feff version and ipot input styling">
+	    <option value="6el">Feff6 / elements</option>
+	    <option value="6ta">Feff6 / tags</option>
+	    <option value="6si">Feff6 / sites</option>
+	    <option value="8el">Feff8 / elements</option>
+	    <option value="8ta">Feff8 / tags</option>
+	    <option value="8si">Feff8 / sites</option>
+	  </select>
+	</div>
+	<p></p>
+	<div id="lattice" title="The lattice constants in &Aring;ngstrom units">
+	  A:&nbsp;<input type="text" name="a" size="10" value=<% a %> >&nbsp;
+	  B:&nbsp;<input type="text" name="b" size="10" value=<% b %> >&nbsp;
+	  C:&nbsp;<input type="text" name="c" size="10" value=<% c %> >
+	</div>
+	<div id="lattice" title="The lattice angles in degrees, &alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b)">
+	  &alpha;:&nbsp;<input type="text" name="alpha" size="10" value=<% alpha %>>&nbsp;
+	  &beta;:&nbsp;<input type="text" name="beta" size="10" value=<% beta %>>&nbsp;
+	  &gamma;:&nbsp;<input type="text" name="gamma" size="10" value=<% gamma %>>
+	</div>
+	<p></p>
+	<p></p>
+	<div id="lattice">
+	  Cluster size:&nbsp;<input type="text" name="rclus" size="10" value=<% rclus %>  title="The radial extent of the cluster written to the feff.inp file">
+	  &nbsp;
+	  Longest path:&nbsp;<input type="text" name="rmax" size="10" value=<% rmax %> title="The longest path to be calculated by Feff's pathfinder"><br>
+	</div>
+	<div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9">
+	  SCF radius:&nbsp;&nbsp;&nbsp;<input type="text" name="rscf" size="10" value=<% rscf %>>
+	</div>
+	<div id="lattice" title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
+	  Shift vector:&nbsp;<input type="text" name="shift_x" size="8" value=<% shift_x %>>&nbsp;
+	  <input type="text" name="shift_y" size="8" value=<% shift_y %>>&nbsp;
+	  <input type="text" name="shift_z" size="8" value=<% shift_z %>>
+	</div>
+	<p></p>
 
-	            <h3><a href="#" id="about_env_link">WebAtoms environment</a></h3>
-
-          <div id="about-content" style="display: none;">
-            <table>
-                <tbody>
-                <tr>
-                    <td>Perl version</td>
-                    <td><tt><% perl_version %></tt></td>
-                </tr>
-                <tr>
-                    <td>Dancer version</td>
-                    <td><tt><% dancer_version %></tt></td>
-                </tr>
-                <tr>
-                    <td>Backend</td>
-                    <td><tt><% settings.apphandler %></tt></td>
-                </tr>
-                <tr>
-                    <td>Appdir</td>
-                    <td><tt><% settings.appdir %></tt></td>
-                </tr>
-                <tr>
-                    <td>URI base</td>
-                    <td><tt> <% request.uri_base %></tt></td>
-                </tr>
-                <tr>
-                    <td>Template engine</td>
-                    <td><tt><% settings.template %></tt></td>
-                </tr>
-                <tr>
-                    <td>Logger engine</td>
-                    <td><tt><% settings.logger %></tt></td>
-                </tr>
-                <tr>
-                    <td>Running environment</td>
-                    <td><tt><% settings.environment %></tt></td>
-                </tr>
-                </tbody>
-            </table>
-          </div>
-
-    <script type="text/javascript">
-    $('#about_env_link').click(function() {
-        $('#about-content').slideToggle('fast', function() {
-            // ok
-        });
-        return( false );
-    });
-    </script>
-      </li>
-
-	  <li>
-	    <div id="footer">
-	      Powered by <a href="http://perldancer.org/">Dancer</a>
-	      <% dancer_version %> and
-	      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
-	      </div>
-	    </li>
-	  <li>
-      </ul>
-      </div>
-
-      <div id="content">
-        <div id="header">
-          <h1>WebAtoms</h1>
-          <h2>Convert crystallographic data into a <tt>feff.inp</tt> file</h2>
-        </div>
-
-        <div id="getting-started">
-       	  <form>
-	  <div id="lattice">
-	       Space group:&nbsp;<input type="text" name="space" size="30"
-	       	     		  placeholder="Hermann-Maguin or Schoenflies"
-				  value=<% space %>
-	       	     		  >
-	  </div>
-	  <div id="lattice">
-	       Edge:&nbsp;
-	       <select name="edge" title="Absorption edge of the measurement.">
-	         <option value="K">K</option>
-	         <option value="L3">L3</option>
-	         <option value="L2">L2</option>
-	         <option value="L1">L1</option>
-	       </select>&nbsp;&nbsp;
-	       Feff Style:&nbsp;
-	       <select name="style" title="Feff input style.">
-	         <option value="6el">Feff6 / elements</option>
-	         <option value="6ta">Feff6 / tags</option>
-	         <option value="6si">Feff6 / sites</option>
-	         <option value="8el">Feff8 / elements</option>
-	         <option value="8ta">Feff8 / tags</option>
-	         <option value="8si">Feff8 / sites</option>
-	       </select>&nbsp;&nbsp;
-	       Output:&nbsp;
-	       <select name="output" title="Output type.">
-	         <option value="feff">Feff input file</option>
-	         <option value="atoms">Atoms input file</option>
-	         <option value="p1">Atoms input in the P1 space group</option>
-	         <option value="space">Spacegroup description</option>
-	         <option value="abs">Absorption calculations</option>
-	         <option value="xyz">XYZ format</option>
-	         <option value="alc">Alchemy format</option>
-	         <option value="over">Overfull unit cell</option>
-	       </select>&nbsp;&nbsp;
-	  </div>
-	  <p></p>
-	  <div id="lattice" title="The lattice constants in &Aring;ngstrom units">
-	       A:&nbsp;<input type="text" name="a" size="10" value=<% a %> >&nbsp;&nbsp;
-	       B:&nbsp;<input type="text" name="b" size="10" value=<% b %> >&nbsp;&nbsp;
-	       C:&nbsp;<input type="text" name="c" size="10" value=<% c %> >
-	  </div>
-	  <div id="lattice" title="The lattice angles in degrees, &alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b)">
-	       &alpha;:&nbsp;<input type="text" name="alpha" size="10" value=<% alpha %>>&nbsp;&nbsp;
-	       &beta;:&nbsp;<input type="text" name="beta" size="10" value=<% beta %>>&nbsp;&nbsp;
-	       &gamma;:&nbsp;<input type="text" name="gamma" size="10" value=<% gamma %>>
-	  </div>
-	  <p></p>
-	  <p></p>
-	  <div id="lattice" title="The radial extent of the cluster written to the feff.inp file">
-	       Cluster size:&nbsp;<input type="text" name="rclus" size="10" value=<% rclus %>><br>
-	  </div>
-	  <div id="lattice" title="The longest path to be calculated by Feff's pathfinder">
-	       Longest path:&nbsp;<input type="text" name="rmax" size="10" value=<% rmax %>><br>
-	  </div>
-	  <div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9">
-	       SCF radius&nbsp;&nbsp;:&nbsp;<input type="text" name="rscf" size="10" value=<% rscf %>>
-	  </div>
-	  <div id="lattice" title="The shift vector used to recenter the crystal from a non-standard setting">
-	       Shift vector:&nbsp;<input type="text" name="shift_x" size="8" value=<% shift_x %>>&nbsp;
-	       &nbsp;<input type="text" name="shift_y" size="8" value=<% shift_y %>>&nbsp;
-	       &nbsp;<input type="text" name="shift_z" size="8" value=<% shift_z %>>
-	  </div>
-	  <p></p>
-	  <div id="sites">
-	  <pre>Core     x              y             z              tag</pre>
-	  </div>
-
+	<table>
+	  <tr>
+	    <th>Abs.</th>
+	    <th>Element</th>
+	    <th>x</th>
+	    <th>y</th>
+	    <th>z</th>
+	    <th>tag</th>
+	  </tr>
 	  <% SET check = "checked" %>
 	  <% SET ii = nsites - 1 %>
 	  <% FOREACH site in [0..ii] %>
- 	    <div id="sites">
-	       <input type="radio" name="core" value=0 <% check %>>&nbsp;	
-	       <input type="text" name="<% 'e' _ site %>" size="7" value="<% e.${site} %>">&nbsp;	
-	       <input type="text" name="<% 'x' _ site %>" size="7" value="<% x.${site} %>">&nbsp;	
-	       <input type="text" name="<% 'y' _ site %>" size="7" value="<% y.${site} %>">&nbsp;	
-	       <input type="text" name="<% 'z' _ site %>" size="7" value="<% z.${site} %>">&nbsp;	
-	       <input type="text" name="<% 't' _ site %>" size="7" value="<% t.${site} %>">&nbsp;	
-	    </div>
+ 	  <tr>
+	    <td><input type="radio" name="core" value=0 <% check %> title="Click to make this site the absorber"></td>
+	    <td><input type="text" name="<% 'e' _ site %>" size="7" value="<% e.${site} %>" title="The one- or two-letter element symbol"></td>
+	    <td><input type="text" name="<% 'x' _ site %>" size="7" value="<% x.${site} %>" title="The fractional x-coordinate for this site"></td>
+	    <td><input type="text" name="<% 'y' _ site %>" size="7" value="<% y.${site} %>" title="The fractional y-coordinate for this site"></td>
+	    <td><input type="text" name="<% 'z' _ site %>" size="7" value="<% z.${site} %>" title="The fractional z-coordinate for this site"></td>
+	    <td><input type="text" name="<% 't' _ site %>" size="7" value="<% t.${site} %>" title="The site tag (10 characters max!)"></td>
+	  </tr>
 	  <% SET check = ""%>
           <% END %>
-	  
-	  <p></p>
-	  <div>
-	    <input type="submit" value="Compute">&nbsp;&nbsp;&nbsp;<input type="reset">
-	  </div>
-	  </form>
-	</div>
+	</table>
 
-        <p></p>
-	<hr>
-        <p></p>
-
+	<p></p>
 	<div>
-	  <pre id="response">
-<% response %>
-	  </pre>
+	  <input type="submit" value="Compute">&nbsp;&nbsp;&nbsp;<input type="reset">
 	</div>
+      </form>
     </div>
+
+    <hr>
+
+    <a href="#" id="about_env_link">WebAtoms environment</a>
+  
+    <div id="about-content" style="display: none;">
+      <table>
+	<tbody>
+          <tr>
+            <td>Perl version</td>
+            <td><tt><% perl_version %></tt></td>
+          </tr>
+          <tr>
+            <td>Dancer version</td>
+            <td><tt><% dancer_version %></tt></td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td><tt><% settings.apphandler %></tt></td>
+          </tr>
+          <tr>
+            <td>Appdir</td>
+            <td><tt><% settings.appdir %></tt></td>
+          </tr>
+          <tr>
+            <td>URI base</td>
+            <td><tt> <% request.uri_base %></tt></td>
+          </tr>
+          <tr>
+            <td>Template engine</td>
+            <td><tt><% settings.template %></tt></td>
+          </tr>
+          <tr>
+            <td>Logger engine</td>
+            <td><tt><% settings.logger %></tt></td>
+          </tr>
+          <tr>
+            <td>Running environment</td>
+            <td><tt><% settings.environment %></tt></td>
+          </tr>
+	</tbody>
+      </table>
+    </div>
+
+    <script type="text/javascript">
+      $('#about_env_link').click(function() {
+      $('#about-content').slideToggle('fast', function() {
+      // ok
+      });
+      return( false );
+      });
+    </script>
+
+    <!-- <div id="footer"> -->
+    <div id="versions">
+      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> is
+      powered by <a href="http://perldancer.org/">Dancer</a>
+      <% dancer_version %> and
+      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
+    </div>
+    <!-- </div> -->
+
+    
+  </div>
+
+  <div id="response">
+    <pre>
+<% response %>
+    </pre>
+  </div>
+
+</div>
+
