@@ -1,0 +1,11 @@
+#+STARTUP: showall
+
+*  WebAtoms
+
+Crystal data to feff.inp ... on the web!
+
+* Requirements
+
+ 1. [[http://perldancer.org/][Dancer]]
+ 2. [[http://bruceravel.github.io/demeter/][Demeter]]
+
