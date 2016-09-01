@@ -1,25 +1,29 @@
 
 <div id="sidebar">
-  <div id="header">
-    <h1>WebAtoms</h1>
-    <h2>Convert crystallographic data into a <tt>feff.inp</tt> file</h2>
-  </div>
-
-  
-  &nbsp;<strong>Links:</strong>
-  <a href="http://bruceravel.github.io/demeter/">Demeter homepage</a>&nbsp;&#183;
-  <a href="https://github.com/bruceravel/demeter/">Demeter @ GitHub</a>&nbsp;&#183;
-  <a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/">Ifeffit Mailing List</a>&nbsp;&#183;
-  <a href="http://xraypy.github.io/xraylarch/">Larch homepage</a>&nbsp;&#183;
-  <a href="https://github.com/newville/ifeffit">Ifeffit @ GitHub</a>&nbsp;&#183;
-  <a href="http://xafs.org/">xafs.org</a>
-  <br>
-  &nbsp;<strong>Manuals:</strong>
-  <a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
-  <a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>&nbsp;&#183;
-  <a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
-  <a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>
-    
+  <table>
+    <tr>
+      <td width="50%">
+	<span class="title">WebAtoms</span><br>
+	<span class="subtitle">Convert crystallographic data into a Feff input file</span>
+      </td>
+      <td width="50%">
+	&nbsp;<strong>Links:</strong>
+	<a href="http://bruceravel.github.io/demeter/">Demeter homepage</a>&nbsp;&#183;
+	<a href="https://github.com/bruceravel/demeter/">Demeter @ GitHub</a>&nbsp;&#183;
+	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/"
+	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
+	<a href="http://xraypy.github.io/xraylarch/">Larch homepage</a>&nbsp;&#183;
+	<a href="https://github.com/newville/ifeffit">Ifeffit @ GitHub</a>&nbsp;&#183;
+	<a href="http://xafs.org/">xafs.org</a>
+	<br>
+	&nbsp;<strong>Manuals:</strong>
+	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>
+      </td>
+    </tr>
+  </table>
   <p></p>
 </div>
 
@@ -29,21 +33,35 @@
   <div id="content">
 
     <div id="getting-started">
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+	<input type="file" name="file">
+	<input type="submit" name="submit" value="Import local file"
+	       title="Select a file from your computer with the Browse button then import it by clicking this button">
+      </form>
+      <br>
+      <form action="/fetch" method="POST" enctype="multipart/form-data">
+	<input type="text" name="url" size="30">
+	<input type="submit" name="submit" value="Import file from web"
+	       title="Input the path to an atoms.inp or CIF file on the web then import it by clicking this button">
+      </form>
+
+      <br><hr><br>
+      
       <form>
 	<div id="lattice">
 	  Space group:&nbsp;<input type="text" name="space" size="10"
 	       	     		   title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
-				   value=<% space %>>&nbsp;&nbsp;
+				   value="<% space %>">&nbsp;&nbsp;
 	  Output:&nbsp;
 	  <select name="output" title="Specify the kind of output file">
 	    <option value="feff">feff.inp</option>
 	    <option value="atoms">atoms.inp</option>
 	    <option value="p1">P1 file</option>
-	    <option value="space">Space group</option>
-	    <option value="abs">Absorption</option>
+	    <option value="spacegroup">Space group</option>
+	    <option value="absorption">Absorption</option>
 	    <option value="xyz">XYZ</option>
-	    <option value="alc">Alchemy</option>
-	    <option value="over">Overfull cell</option>
+	    <option value="alchemy">Alchemy</option>
+	    <option value="overfull">Overfull cell</option>
 	    <option value="object">(diagnostic)</option>
 	  </select>&nbsp;&nbsp;
 	</div>
@@ -57,39 +75,41 @@
 	  </select>&nbsp;&nbsp;
 	  Feff Style:&nbsp;
 	  <select name="style" title="Feff version and ipot input styling">
-	    <option value="6el">Feff6 / elements</option>
-	    <option value="6ta">Feff6 / tags</option>
-	    <option value="6si">Feff6 / sites</option>
-	    <option value="8el">Feff8 / elements</option>
-	    <option value="8ta">Feff8 / tags</option>
-	    <option value="8si">Feff8 / sites</option>
+	    <option value="6elements">Feff6 / elements</option>
+	    <option value="6tags">Feff6 / tags</option>
+	    <option value="6sites">Feff6 / sites</option>
+	    <option value="8elements">Feff8 / elements</option>
+	    <option value="8tags">Feff8 / tags</option>
+	    <option value="8sites">Feff8 / sites</option>
 	  </select>
 	</div>
 	<p></p>
 	<div id="lattice" title="The lattice constants in &Aring;ngstrom units">
-	  A:&nbsp;<input type="text" name="a" size="10" value=<% a %> >&nbsp;
-	  B:&nbsp;<input type="text" name="b" size="10" value=<% b %> >&nbsp;
-	  C:&nbsp;<input type="text" name="c" size="10" value=<% c %> >
+	  A:&nbsp;<input type="text" name="a" size="10" value="<% a %>" >&nbsp;
+	  B:&nbsp;<input type="text" name="b" size="10" value="<% b %>" >&nbsp;
+	  C:&nbsp;<input type="text" name="c" size="10" value="<% c %>" >
 	</div>
 	<div id="lattice" title="The lattice angles in degrees, &alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b)">
-	  &alpha;:&nbsp;<input type="text" name="alpha" size="10" value=<% alpha %>>&nbsp;
-	  &beta;:&nbsp;<input type="text" name="beta" size="10" value=<% beta %>>&nbsp;
-	  &gamma;:&nbsp;<input type="text" name="gamma" size="10" value=<% gamma %>>
+	  &alpha;:&nbsp;<input type="text" name="alpha" size="10" value="<% alpha %>">&nbsp;
+	  &beta;:&nbsp;<input type="text" name="beta" size="10" value="<% beta %>">&nbsp;
+	  &gamma;:&nbsp;<input type="text" name="gamma" size="10" value="<% gamma %>">
 	</div>
 	<p></p>
 	<p></p>
 	<div id="lattice">
-	  Cluster size:&nbsp;<input type="text" name="rclus" size="10" value=<% rclus %>  title="The radial extent of the cluster written to the feff.inp file">
+	  Cluster size:&nbsp;<input type="text" name="rclus" size="10" value="<% rclus %>"
+				    title="The radial extent of the cluster written to the feff.inp file">
 	  &nbsp;
-	  Longest path:&nbsp;<input type="text" name="rmax" size="10" value=<% rmax %> title="The longest path to be calculated by Feff's pathfinder"><br>
+	  Longest path:&nbsp;<input type="text" name="rmax" size="10" value="<% rmax %>"
+				    title="The longest path to be calculated by Feff's pathfinder"><br>
 	</div>
 	<div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9">
-	  SCF radius:&nbsp;&nbsp;&nbsp;<input type="text" name="rscf" size="10" value=<% rscf %>>
+	  SCF radius:&nbsp;&nbsp;&nbsp;<input type="text" name="rscf" size="10" value="<% rscf %>">
 	</div>
 	<div id="lattice" title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
-	  Shift vector:&nbsp;<input type="text" name="shift_x" size="8" value=<% shift_x %>>&nbsp;
-	  <input type="text" name="shift_y" size="8" value=<% shift_y %>>&nbsp;
-	  <input type="text" name="shift_z" size="8" value=<% shift_z %>>
+	  Shift vector:&nbsp;<input type="text" name="shift_x" size="8" value="<% shift_x %>">&nbsp;
+	  <input type="text" name="shift_y" size="8" value="<% shift_y %>">&nbsp;
+	  <input type="text" name="shift_z" size="8" value="<% shift_z %>">
 	</div>
 	<p></p>
 
@@ -119,7 +139,8 @@
 
 	<p></p>
 	<div>
-	  <input type="submit" value="Compute">&nbsp;&nbsp;&nbsp;<input type="reset">
+	  <input type="submit" value="Compute">&nbsp;&nbsp;&nbsp;
+	  <input type="reset">&nbsp;&nbsp;&nbsp;
 	</div>
       </form>
     </div>
@@ -178,21 +199,24 @@
 
     <!-- <div id="footer"> -->
     <div id="versions">
-      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> is
+      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> <% waversion %> is
       powered by <a href="http://perldancer.org/">Dancer</a>
       <% dancer_version %> and
-      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
+      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.<p></p>
     </div>
     <!-- </div> -->
 
     
   </div>
 
-  <div id="response">
-    <pre>
+  <form action="/save">
+    <div id="response">
+      <textarea rows="30" cols="50" name="response">
 <% response %>
-    </pre>
-  </div>
-
+      </textarea>
+      &nbsp;<input type="submit" value="Save">
+    </div>
+  </form>
+    
 </div>
 

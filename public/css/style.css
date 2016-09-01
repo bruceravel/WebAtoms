@@ -3,7 +3,7 @@ body {
     margin: 0;
     margin-bottom: 25px;
     padding: 0;
-    background-color: #ddd;
+    background-color: #4E4A60;
     background-repeat: no-repeat;
     background-position: top left;
 
@@ -17,16 +17,40 @@ h1 {
     font-size: 28px;
     color: #000;
 }
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #401490;
+    font-family: sans-serif;
+    margin: 1.2em 0 0.6em 0;
+    padding-left: 5%;
+}
+.subtitle {
+    color: #666;
+    font-weight: normal;
+    font-size: 16px;
+    font-family: sans-serif;
+    margin: 1.2em 0 0.6em 0;
+    padding-left: 5%;
+}
+    
 
-a  {color: #03c}
+a {
+    color: #401490;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 10px;
+}
 a:hover {
-    background-color: #03c;
+    background-color: #401490;
     color: white;
     text-decoration: none;
+    font-weight: bold;
+    font-size: 10px;
 }
 
 #page {
-    background-color: #ddd;
+    background-color: #4E4A60;
     margin: auto;
     margin-left: auto;
     padding-left: 10px;
@@ -37,24 +61,26 @@ a:hover {
 }
 
 #content {
+    /* background-color: #F1F0FA; */
     background-color: white;
     border: 3px solid #aaa;
     padding: 5px;
     margin-top: 0%;
     width: 48%;
     float: left;
-    height: 80vh;
+    height: 85vh;
     overflow: auto;
+    border-style: none;
 }
 
 #sidebar {
     z-index: 99;
-    background: white;
+    background-color: #F1F0FA;
     float: top;
     width: 100%;
 
     position: relative;
-    height: 100px;
+    height: 70px;
     clear:both;} 
 
 #header, #about, #getting-started {
@@ -212,13 +238,41 @@ code, tt {
 }
 
 #response {
-    background-color: #ddd;
+    /* background-color: #4E4A60; */
+    background-color: white;
     margin: 5px;
-    padding: 5px;
+    padding: 0px;
+    padding-right: 10px;
     margin-top: 0%;
-    border-style: double;
+    border-style: none;
     width: 48%;
     float: right;
-    height: 80vh;
-    overflow-y: auto;
-};
+    height: 85vh;
+}
+
+#response textarea {
+    resize: none;
+    outline: none;
+    width: 100%;
+    padding: 3px 0px 3px 3px;
+    margin-bottom: 5px;
+    border: none;
+    height: calc(100% - 50px);
+    /* background-color: #F1F0FA; */
+    background-color: white;
+}
+
+
+#urlbutton {
+    float: "left";
+}
+#urlbox { 
+    width: 150px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#links {
+    align: right;
+}
