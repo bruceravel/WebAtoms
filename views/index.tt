@@ -36,15 +36,15 @@
 				   value=<% space %>>&nbsp;&nbsp;
 	  Output:&nbsp;
 	  <select name="output" title="Specify the kind of output file">
-	    <option value="feff">Feff input file</option>
-	    <option value="atoms">Atoms input file</option>
-	    <option value="p1">Atoms input, P1 space group</option>
-	    <option value="space">Spacegroup description</option>
-	    <option value="abs">Absorption calculations</option>
-	    <option value="xyz">XYZ format</option>
-	    <option value="alc">Alchemy format</option>
-	    <option value="over">Overfull unit cell</option>
-	    <option value="object">Atoms object (diagnostic)</option>
+	    <option value="feff">feff.inp</option>
+	    <option value="atoms">atoms.inp</option>
+	    <option value="p1">P1 file</option>
+	    <option value="space">Space group</option>
+	    <option value="abs">Absorption</option>
+	    <option value="xyz">XYZ</option>
+	    <option value="alc">Alchemy</option>
+	    <option value="over">Overfull cell</option>
+	    <option value="object">(diagnostic)</option>
 	  </select>&nbsp;&nbsp;
 	</div>
 	<div id="lattice">

@@ -6,6 +6,9 @@ Crystal data to feff.inp ... on the web!
 
 * Requirements
 
- 1. [[http://perldancer.org/][Dancer]]
- 2. [[http://bruceravel.github.io/demeter/][Demeter]]
+ 1. [[http://perldancer.org/][Dancer]] (do =cpanm Dancer= or =sudo -S Dancer=)
+ 2. perl's [[https://metacpan.org/pod/distribution/YAML/lib/YAML.pod][YAML implementation]] (do =cpanm YAML= or =sudo -S YAML=)
+ 3. [[http://bruceravel.github.io/demeter/][Demeter]]
 
+Note that Dancer and YAML both have a number of dependencies.  It will
+take a few minutes.
