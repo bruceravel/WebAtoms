@@ -4,7 +4,7 @@ use Demeter qw(:atoms);
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use List::Util qw(max);
-use List::MoreUtils qw(any);
+use List::MoreUtils;
 use Safe;
 #no warnings 'redefine';
 use HTTP::Tiny;
@@ -26,6 +26,10 @@ get '/' => sub {
   my $t = [];
   my $nsites = 5;
   my $output = 'feff';
+  my $icore  = 0;
+
+  my $add   = param('add');
+  my $reset = param('reset');
 
   if (param('keep')) {
     $nsites = $#{$atoms->sites};
@@ -34,6 +38,9 @@ get '/' => sub {
       next if not $atoms->sites->[$i];
       ($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
     };
+
+  } elsif (defined($reset)) {
+    $atoms->clear;
 
   } else {
     #####################################
@@ -130,13 +137,14 @@ get '/' => sub {
 
 
     ## lists, strings
-    if (any {lc($edge) eq $_} qw(k l1 l2 l3)) {
+    if (List::MoreUtils::any {lc($edge) eq $_} qw(k l1 l2 l3)) {
       $atoms->edge($edge);
     } else {
       $problems .= "- Edge is not one of K, L1, L2, or L3 (was $edge)\n";
     };
-    if (any {lc($s) eq $_} qw(elements tags sites)) {
+    if (List::MoreUtils::any {lc($s) eq $_} qw(elements tags sites)) {
       $atoms->ipot_style($s);
+      $atoms->feff_version($v);
     } else {
       $problems .= "- Style is not one of elements, tags, or sites (was $s)\n";
     };
@@ -149,6 +157,15 @@ get '/' => sub {
     ########################################
     # retrieve and sanitize the atoms list #
     ########################################
+
+    my $count = 100;		# try to figure out from the form data how many sites are defined
+    while ($count > -1) {
+      if (defined(param('e'.$count))) {
+	$nsites = $count+1;
+	last;
+      };
+      --$count;
+    };
 
     my $core = param('core') || 0;
     foreach my $i (0 .. $nsites-1) {
@@ -185,10 +202,13 @@ get '/' => sub {
 	$atoms->core($t->[$i]) if ($i == $core);
       };
     };
+    $icore = $core;
   };
 
   if ($problems) {
     $response = $problems;
+  } elsif (defined($add) or defined($reset)) {
+    $response = q{};
   } elsif ($output eq 'object') {
     $response = $atoms->serialization;
   } elsif ($#{$atoms->sites} > -1) {
@@ -201,10 +221,21 @@ get '/' => sub {
   #####################
   # post the new page #
   #####################
+  $nsites = $#{$atoms->sites}+1;
+  $nsites = 5 if $nsites < 5;
+  if ($add) {
+    ++$nsites;
+    push @$e, 'H';
+    push @$x,  0;
+    push @$y,  0;
+    push @$z,  0;
+  };
+
+  my $style = $atoms->feff_version . $atoms->ipot_style;
 
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
-		     nsites    => max(5, $#{$atoms->sites} + 1),
+		     nsites    => $nsites,
 		     space     => $atoms->space,
 		     a	       => $atoms->a,
 		     b	       => $atoms->b,
@@ -218,6 +249,9 @@ get '/' => sub {
 		     shift_x   => $atoms->shiftvec->[0],
 		     shift_y   => $atoms->shiftvec->[1],
 		     shift_z   => $atoms->shiftvec->[2],
+		     edge      => $atoms->edge,
+		     style     => $style,
+		     icore     => $icore,
 		     e	       => $e,
 		     x	       => $x,
 		     y	       => $y,
@@ -253,7 +287,6 @@ get '/save' => sub {
   # 		     response => "Hi!\n"};
 };
 
-
 ## thanks Gabor!  http://perlmaven.com/uploading-files-with-dancer2
 post '/upload' => sub {
   my $data = request->upload('file');
@@ -268,7 +301,11 @@ post '/upload' => sub {
   my $path = path($dir, $data->basename);
   $data->link_to($path);
 
-  $atoms->file($path);
+  if ($path =~ m{cif\z}i) {
+    $atoms->cif($path);
+  } else {
+    $atoms->file($path);
+  };
   $atoms->populate;
   unlink $path;
   redirect '/?keep=1';
@@ -303,6 +340,7 @@ post '/fetch' => sub {
   unlink $path;
   redirect '/?keep=1';
 };
+
 
 
 

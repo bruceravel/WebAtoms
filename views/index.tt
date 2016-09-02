@@ -1,24 +1,27 @@
 
 <div id="sidebar">
-  <table>
+  <table width="100%">
     <tr>
       <td width="50%">
-	<span class="title">WebAtoms</span><br>
+	<a href="<% request.uri_base %>" class="title">WebAtoms</a><br>
 	<span class="subtitle">Convert crystallographic data into a Feff input file</span>
       </td>
       <td width="50%">
 	&nbsp;<strong>Links:</strong>
-	<a href="http://bruceravel.github.io/demeter/">Demeter homepage</a>&nbsp;&#183;
-	<a href="https://github.com/bruceravel/demeter/">Demeter @ GitHub</a>&nbsp;&#183;
 	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/"
-	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
-	<a href="http://xraypy.github.io/xraylarch/">Larch homepage</a>&nbsp;&#183;
-	<a href="https://github.com/newville/ifeffit">Ifeffit @ GitHub</a>&nbsp;&#183;
+	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, about the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/">Demeter</a>&nbsp;&#183;
+	<a href="http://feffproject.org/">Feff</a>&nbsp;&#183;
+	<a href="http://xraypy.github.io/xraylarch/">Larch</a>&nbsp;&#183;
+	<a href="https://github.com/newville/ifeffit">Ifeffit</a>&nbsp;&#183;
 	<a href="http://xafs.org/">xafs.org</a>
 	<br>
 	&nbsp;<strong>Manuals:</strong>
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/webatoms.html">WebAtoms Manual</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>
+	<br>
+	&nbsp;<strong>Troubleshooting:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>
       </td>
@@ -67,25 +70,73 @@
 	</div>
 	<div id="lattice">
 	  Edge:&nbsp;
-	  <select name="edge" title="Absorption edge of the measurement">
-	    <option value="K">K</option>
-	    <option value="L3">L3</option>
-	    <option value="L2">L2</option>
-	    <option value="L1">L1</option>
-	  </select>&nbsp;&nbsp;
-	  Feff Style:&nbsp;
-	  <select name="style" title="Feff version and ipot input styling">
-	    <option value="6elements">Feff6 / elements</option>
-	    <option value="6tags">Feff6 / tags</option>
-	    <option value="6sites">Feff6 / sites</option>
-	    <option value="8elements">Feff8 / elements</option>
-	    <option value="8tags">Feff8 / tags</option>
-	    <option value="8sites">Feff8 / sites</option>
+          <select name="edge" title="Absorption edge of the measurement">
+            <% IF edge.lower == "k" %>
+              <option value="K" selected>K</option>
+            <% ELSE %>
+              <option value="K">K</option>
+            <% END %>
+
+            <% IF edge.lower == "l3" %>
+              <option value="L3" selected>L3</option>
+            <% ELSE %>
+              <option value="L3">L3</option>
+            <% END %>
+
+	    <% IF edge.lower == "l2" %>
+              <option value="L2" selected>L2</option>
+            <% ELSE %>
+              <option value="L2">L2</option>
+            <% END %>
+
+	    <% IF edge.lower == "l1" %>
+              <option value="L1" selected>L1</option>
+            <% ELSE %>
+              <option value="L1">L1</option>
+            <% END %>
+          </select>&nbsp;&nbsp;
+          Feff Style:&nbsp;
+          <select name="style" title="Feff version and ipot input styling">
+            <% IF style.lower == "6elements" %>
+              <option value="6elements" selected>Feff6 / elements</option>
+            <% ELSE %>
+              <option value="6elements">Feff6 / elements</option>
+            <% END %>
+	      
+            <% IF style.lower == "6tags" %>
+              <option value="6tags" selected>Feff6 / tags</option>
+            <% ELSE %>
+              <option value="6tags">Feff6 / tags</option>
+            <% END %>
+
+            <% IF style.lower == "6sites" %>
+              <option value="6sites" selected>Feff6 / sites</option>
+            <% ELSE %>
+              <option value="6sites">Feff6 / sites</option>
+            <% END %>
+
+            <% IF style.lower == "8elements" %>
+              <option value="8elements" selected>Feff8 / elements</option>
+            <% ELSE %>
+              <option value="8elements">Feff8 / elements</option>
+            <% END %>
+
+            <% IF style.lower == "8tags" %>
+              <option value="8tags" selected>Feff8 / tags</option>
+            <% ELSE %>
+              <option value="8tags">Feff8 / tags</option>
+            <% END %>
+
+            <% IF style.lower == "8sites" %>
+              <option value="8sites" selected>Feff8 / sites</option>
+            <% ELSE %>
+              <option value="8sites">Feff8 / sites</option>
+            <% END %>
 	  </select>
 	</div>
 	<p></p>
 	<div id="lattice" title="The lattice constants in &Aring;ngstrom units">
-	  A:&nbsp;<input type="text" name="a" size="10" value="<% a %>" >&nbsp;
+	  A:&nbsp;<input type="text" name="a" size="10" value="<% a %>">&nbsp;
 	  B:&nbsp;<input type="text" name="b" size="10" value="<% b %>" >&nbsp;
 	  C:&nbsp;<input type="text" name="c" size="10" value="<% c %>" >
 	</div>
@@ -126,7 +177,11 @@
 	  <% SET ii = nsites - 1 %>
 	  <% FOREACH site in [0..ii] %>
  	  <tr>
-	    <td><input type="radio" name="core" value=0 <% check %> title="Click to make this site the absorber"></td>
+	    <% IF icore == site %>
+              <td><input type="radio" name="core" value="<% site %>" checked title="Click to make this site the absorber"></td>
+	    <% ELSE %>
+              <td><input type="radio" name="core" value="<% site %>" title="Click to make this site the absorber"></td>
+            <% END %>
 	    <td><input type="text" name="<% 'e' _ site %>" size="7" value="<% e.${site} %>" title="The one- or two-letter element symbol"></td>
 	    <td><input type="text" name="<% 'x' _ site %>" size="7" value="<% x.${site} %>" title="The fractional x-coordinate for this site"></td>
 	    <td><input type="text" name="<% 'y' _ site %>" size="7" value="<% y.${site} %>" title="The fractional y-coordinate for this site"></td>
@@ -139,16 +194,25 @@
 
 	<p></p>
 	<div>
-	  <input type="submit" value="Compute">&nbsp;&nbsp;&nbsp;
-	  <input type="reset">&nbsp;&nbsp;&nbsp;
+	  <input type="submit" value="Compute" style="font-weight: bold; color:#401490;">&nbsp;&nbsp;&nbsp;
+	  <input type="submit" name="reset" value="Reset">
+	  <span style="display:inline-block; width: 30%;"></span>
+	  <input type="submit" name="add" value="Add a site">
 	</div>
       </form>
     </div>
 
     <hr>
 
+    <!-- <div id="footer"> -->
+    <div id="versions">
+      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> v<% waversion %> is
+      powered by <a href="http://perldancer.org/">Dancer</a>
+      <% dancer_version %> and
+      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
+    </div>
+    <!-- </div> -->
     <a href="#" id="about_env_link">WebAtoms environment</a>
-  
     <div id="about-content" style="display: none;">
       <table>
 	<tbody>
@@ -196,25 +260,24 @@
       return( false );
       });
     </script>
-
-    <!-- <div id="footer"> -->
-    <div id="versions">
-      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> <% waversion %> is
-      powered by <a href="http://perldancer.org/">Dancer</a>
-      <% dancer_version %> and
-      <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.<p></p>
-    </div>
-    <!-- </div> -->
-
-    
   </div>
+    
 
   <form action="/save">
     <div id="response">
-      <textarea rows="30" cols="50" name="response">
+      <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
 <% response %>
       </textarea>
-      &nbsp;<input type="submit" value="Save">
+      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary">Save as <tt>feff.inp</tt></button>
+      <%# thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js #%>
+      <script type="text/javascript">
+	$("#btn-save").click( function() {
+	  var text = $("#atomsoutput").val();
+	  var filename = "feff.inp";
+	  var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+	  saveAs(blob, filename);
+	});
+      </script>
     </div>
   </form>
     

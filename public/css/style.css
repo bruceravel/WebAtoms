@@ -25,6 +25,16 @@ h1 {
     margin: 1.2em 0 0.6em 0;
     padding-left: 5%;
 }
+.title:hover {
+    background-color: #401490;
+    color: white;
+    text-decoration: none;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: sans-serif;
+    margin: 1.2em 0 0.6em 0;
+    padding-left: 5%;
+}
 .subtitle {
     color: #666;
     font-weight: normal;
@@ -241,6 +251,7 @@ code, tt {
     /* background-color: #4E4A60; */
     background-color: white;
     margin: 5px;
+    margin-right: 10px;
     padding: 0px;
     padding-right: 10px;
     margin-top: 0%;
@@ -260,6 +271,8 @@ code, tt {
     height: calc(100% - 50px);
     /* background-color: #F1F0FA; */
     background-color: white;
+    overflow-wrap: normal;
+    overflow-x: auto;
 }
 
 
@@ -276,3 +289,7 @@ code, tt {
 #links {
     align: right;
 }
+
+#computebutton {
+    background-color: red;
+};

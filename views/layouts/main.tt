@@ -13,6 +13,13 @@
     !window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.min.js"><\/script>')
 /* ]]> */</script>
 
+<script src="<% request.uri_base %>/javascripts/Blob.js"></script>
+<script src="<% request.uri_base %>/javascripts/FileSaver.js"></script>
+<script type="text/javascript">
+  window.onload=function(){
+     document.getElementById("atomsoutput").wrap='off';
+  }
+</script>
 </head>
 <body>
 <% content %>
