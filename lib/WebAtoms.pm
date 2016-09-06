@@ -1,6 +1,22 @@
+
+#### ===============================================================
+#### This is used to capture error messages from Xray::Crystal::Cell
+#### in a way that can be displayed in the response box of WebAtoms
+BEGIN {
+  use Demeter qw(:atoms);
+}
+
+package Xray::Crystal::Cell;
+no warnings 'once';
+sub carp {
+  $WebAtoms::warning_messages .= $_[0];
+};
+#### ===============================================================
+
+
 package WebAtoms;
 use Dancer ':syntax';
-use Demeter qw(:atoms);
+#use Demeter qw(:atoms);
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use List::Util qw(max);
@@ -9,10 +25,12 @@ use Safe;
 #no warnings 'redefine';
 use HTTP::Tiny;
 
+$SIG{__WARN__} = sub {accumulate($_[0])};
 
 our $VERSION = '1';
 
 our $atoms = Demeter::Atoms->new;
+our $warning_messages = q{};
 
 get '/' => sub {
 
@@ -205,14 +223,35 @@ get '/' => sub {
     $icore = $core;
   };
 
+  my $additional = q{};
+
+  if ($atoms->cell->group->is_first and $#{$atoms->cell->group->shiftvec} > -1) {
+    my $vec = sprintf("(%s, %s, %s)", @{$atoms->cell->group->shiftvec});
+    $additional = "
+ * This space group symbol identifies the first standard setting.  You may need to
+ * use a shift vector of
+ *
+ *   $vec
+ *
+ * If you see multiply occupied positions or if the coordination seems wrong, you
+ * should try using that shift vector.
+
+";
+  };
+
+  $additional .= $warning_messages;
+
+  
   if ($problems) {
     $response = $problems;
   } elsif (defined($add) or defined($reset)) {
     $response = q{};
+  } elsif ($atoms->cell->group->warning) {
+    $response = $atoms->cell->group->warning;
   } elsif ($output eq 'object') {
-    $response = $atoms->serialization;
+    $response = $additional . $atoms->serialization;
   } elsif ($#{$atoms->sites} > -1) {
-    $response = $atoms->Write($output);
+    $response = $additional . $atoms->Write($output);
   } else {
     $response = q{};
   };
@@ -246,9 +285,9 @@ get '/' => sub {
 		     rclus     => $atoms->rmax,
 		     rmax      => $atoms->rpath,
 		     rscf      => $atoms->rscf,
-		     shift_x   => $atoms->shiftvec->[0],
-		     shift_y   => $atoms->shiftvec->[1],
-		     shift_z   => $atoms->shiftvec->[2],
+		     shift_x   => 0, #$atoms->shiftvec->[0],
+		     shift_y   => 0, #$atoms->shiftvec->[1],
+		     shift_z   => 0, #$atoms->shiftvec->[2],
 		     edge      => $atoms->edge,
 		     style     => $style,
 		     icore     => $icore,
@@ -306,7 +345,6 @@ post '/upload' => sub {
   } else {
     $atoms->file($path);
   };
-  $atoms->populate;
   unlink $path;
   redirect '/?keep=1';
 };
@@ -336,13 +374,14 @@ post '/fetch' => sub {
   } else {
     $atoms->file($path);
   };
-  $atoms->populate;
   unlink $path;
   redirect '/?keep=1';
 };
 
 
-
+sub accumulate {
+  $warning_messages .= $_[0];
+};
 
 sub _interpret {
   my ($str) = @_;
