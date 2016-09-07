@@ -56,16 +56,61 @@
 	       	     		   title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
 				   value="<% space %>">&nbsp;&nbsp;
 	  Output:&nbsp;
-	  <select name="output" title="Specify the kind of output file">
-	    <option value="feff">feff.inp</option>
-	    <option value="atoms">atoms.inp</option>
-	    <option value="p1">P1 file</option>
-	    <option value="spacegroup">Space group</option>
-	    <option value="absorption">Absorption</option>
-	    <option value="xyz">XYZ</option>
-	    <option value="alchemy">Alchemy</option>
-	    <option value="overfull">Overfull cell</option>
-	    <option value="object">(diagnostic)</option>
+	  <select name="output" title="Specify the kind of output file" id="output">
+            <% IF (matches = outfile.lower.match('^feff')) %>
+              <option value="feff" selected>feff.inp</option>
+	    <% ELSE %>
+              <option value="feff">feff.inp</option>
+            <% END %>
+	      
+            <% IF (matches = outfile.lower.match('^atoms')) %>
+              <option value="atoms" selected>atoms.inp</option>
+	    <% ELSE %>
+              <option value="atoms">atoms.inp</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^p1')) %>
+              <option value="p1" selected>P1 file</option>
+	    <% ELSE %>
+              <option value="p1">P1 file</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^spacegroup')) %>
+              <option value="spacegroup" selected>Space group</option>
+	    <% ELSE %>
+              <option value="spacegroup">Space group</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^absorption')) %>
+              <option value="absorption" selected>Absorption</option>
+	    <% ELSE %>
+              <option value="absorption">Absorption</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^xyz')) %>
+              <option value="xyz" selected>XYZ</option>
+	    <% ELSE %>
+              <option value="xyz">XYZ</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^alchemy')) %>
+              <option value="alchemy" selected>Alchemy</option>
+	    <% ELSE %>
+              <option value="alchemy">Alchemy</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^overfull')) %>
+              <option value="overfull" selected>Overfull cell</option>
+	    <% ELSE %>
+              <option value="overfull">Overfull cell</option>
+            <% END %>
+
+            <% IF (matches = outfile.lower.match('^object')) %>
+              <option value="object" selected>(diagnostic)</option>
+	    <% ELSE %>
+	      <option value="object">(diagnostic)</option>
+            <% END %>
+
 	  </select>&nbsp;&nbsp;
 	</div>
 	<div id="lattice">
@@ -268,14 +313,14 @@
       <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
 <% response %>
       </textarea>
-      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary">Save as <tt>feff.inp</tt></button>
+      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary">Save as <tt><% outfile %></tt></button>
       <%# thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js #%>
       <script type="text/javascript">
 	$("#btn-save").click( function() {
-	  var text = $("#atomsoutput").val();
-	  var filename = "feff.inp";
-	  var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, filename);
+	var text = $("#atomsoutput").val();
+	var filename = "<% outfile %>";
+	var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, filename);
 	});
       </script>
     </div>

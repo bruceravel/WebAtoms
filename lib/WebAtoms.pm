@@ -19,6 +19,7 @@ use Dancer ':syntax';
 #use Demeter qw(:atoms);
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
+use File::Copy;
 use List::Util qw(max);
 use List::MoreUtils;
 use Safe;
@@ -31,6 +32,7 @@ our $VERSION = '1';
 
 our $atoms = Demeter::Atoms->new;
 our $warning_messages = q{};
+our $output = 'feff';
 
 get '/' => sub {
 
@@ -43,8 +45,8 @@ get '/' => sub {
   my $z = [];
   my $t = [];
   my $nsites = 5;
-  my $output = 'feff';
   my $icore  = 0;
+  my $feffv  = q{};
 
   my $add   = param('add');
   my $reset = param('reset');
@@ -85,12 +87,12 @@ get '/' => sub {
     ## string options
     my $edge   = param('edge')	|| 'k';
     my $style  = param('style')	|| '6el';
-    my ($v, $s) = (6, 'elements');
+    my ($v, $s) = (6, 'tags');
     if ($style =~ m{\A([68])(elements|sites|tags)}i) {
       ($v, $s) = ($1, $2);
     };
     $output = param('output') || 'feff';
-    $output .= $v if $output eq 'feff';
+    $feffv = $output.$v if $output eq 'feff';
 
     $atoms->clear;
 
@@ -241,7 +243,7 @@ get '/' => sub {
 
   $additional .= $warning_messages;
 
-  
+
   if ($problems) {
     $response = $problems;
   } elsif (defined($add) or defined($reset)) {
@@ -251,7 +253,7 @@ get '/' => sub {
   } elsif ($output eq 'object') {
     $response = $additional . $atoms->serialization;
   } elsif ($#{$atoms->sites} > -1) {
-    $response = $additional . $atoms->Write($output);
+    $response = $additional . $atoms->Write($feffv);
   } else {
     $response = q{};
   };
@@ -271,6 +273,12 @@ get '/' => sub {
   };
 
   my $style = $atoms->feff_version . $atoms->ipot_style;
+  my $outfile = $output;
+  if ($output =~ m{atoms|feff|p1}) {
+    $outfile .= '.inp';
+  } else {
+    $outfile .= '.dat';
+  };
 
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
@@ -285,9 +293,9 @@ get '/' => sub {
 		     rclus     => $atoms->rmax,
 		     rmax      => $atoms->rpath,
 		     rscf      => $atoms->rscf,
-		     shift_x   => 0, #$atoms->shiftvec->[0],
-		     shift_y   => 0, #$atoms->shiftvec->[1],
-		     shift_z   => 0, #$atoms->shiftvec->[2],
+		     shift_x   => $atoms->shiftvec->[0],
+		     shift_y   => $atoms->shiftvec->[1],
+		     shift_z   => $atoms->shiftvec->[2],
 		     edge      => $atoms->edge,
 		     style     => $style,
 		     icore     => $icore,
@@ -296,35 +304,21 @@ get '/' => sub {
 		     y	       => $y,
 		     z	       => $z,
 		     t	       => $t,
+		     outfile   => $outfile,
 		     response  => $response};
 };
 
 
-get '/save' => sub {
-
+get '/url' => sub {
+  my $url = param('url');
+  if ($url =~ m{\A\s*\z}) {
+    redirect '/?keep=1';
+    return;
+  };
+  fetch_url($url);
   redirect '/?keep=1';
-  # template 'index', {dversion => $Demeter::VERSION,
-  # 		     nsites   => $nsites+1,
-  # 		     space    => $atoms->space,
-  # 		     a	      => $atoms->a,
-  # 		     b	      => $atoms->b,
-  # 		     c	      => $atoms->c,
-  # 		     alpha    => $atoms->alpha,
-  # 		     beta     => $atoms->beta,
-  # 		     gamma    => $atoms->gamma,
-  # 		     rclus    => $atoms->rmax,
-  # 		     rmax     => $atoms->rpath,
-  # 		     rscf     => $atoms->rscf,
-  # 		     shift_x  => $atoms->shiftvec->[0],
-  # 		     shift_y  => $atoms->shiftvec->[1],
-  # 		     shift_z  => $atoms->shiftvec->[2],
-  # 		     e	      => $e,
-  # 		     x	      => $x,
-  # 		     y	      => $y,
-  # 		     z	      => $z,
-  # 		     t	      => $t,
-  # 		     response => "Hi!\n"};
 };
+
 
 ## thanks Gabor!  http://perlmaven.com/uploading-files-with-dancer2
 post '/upload' => sub {
@@ -355,6 +349,12 @@ post '/fetch' => sub {
     redirect '/?keep=1';
     return;
   };
+  fetch_url($url);
+  redirect '/?keep=1';
+};
+
+sub fetch_url {
+  my ($url) = @_;
 
   my $payload;
   my $response = HTTP::Tiny->new->get($url);
@@ -375,7 +375,6 @@ post '/fetch' => sub {
     $atoms->file($path);
   };
   unlink $path;
-  redirect '/?keep=1';
 };
 
 
