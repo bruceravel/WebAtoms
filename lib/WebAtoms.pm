@@ -1,12 +1,26 @@
 
 #### ===============================================================
+#### This causes /neither/ Larch /nor/ Ifeffit to be loaded
+#### also forces Demeter to be in web mode very early in startup
+BEGIN {
+  $ENV{DEMETER_NO_BACKEND} = 1;
+  $ENV{DEMETER_MODE} = 'web';
+}
+#### ===============================================================
+
+#### ===============================================================
 #### This is used to capture error messages from Xray::Crystal::Cell
 #### in a way that can be displayed in the response box of WebAtoms
 BEGIN {
-  use Demeter qw(:atoms);
+  use Demeter qw(:atoms :ui=web);
 }
 
 package Xray::Crystal::Cell;
+no warnings 'once';
+sub carp {
+  $WebAtoms::warning_messages .= $_[0];
+};
+package Demeter::Atoms;
 no warnings 'once';
 sub carp {
   $WebAtoms::warning_messages .= $_[0];
@@ -21,9 +35,8 @@ use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use File::Copy;
 use List::Util qw(max);
-use List::MoreUtils;
+use List::MoreUtils; # not importing "any" to avoid collision with Dancer's "any"
 use Safe;
-#no warnings 'redefine';
 use HTTP::Tiny;
 
 $SIG{__WARN__} = sub {accumulate($_[0])};
@@ -87,12 +100,12 @@ get '/' => sub {
     ## string options
     my $edge   = param('edge')	|| 'k';
     my $style  = param('style')	|| '6el';
-    my ($v, $s) = (6, 'tags');
+    my ($v, $s) = (6, 'elements');
     if ($style =~ m{\A([68])(elements|sites|tags)}i) {
       ($v, $s) = ($1, $2);
     };
     $output = param('output') || 'feff';
-    $feffv = $output.$v if $output eq 'feff';
+    $feffv = ($output eq 'feff') ? $output.$v : $output;
 
     $atoms->clear;
 
@@ -103,21 +116,17 @@ get '/' => sub {
 
     my ($val, $p);
     ## lattics constants, numbers
-    ($val, $p) = check_number($a, 0, 'Lattice constant a', 0);
-    $problems .= $p;
-    $atoms->a($val);
-
     ($val, $p) = check_number($b, 0, 'Lattice constant b', 0);
     $problems .= $p;
-    $atoms->b($val);
+    $atoms->b($val) if $val;
 
     ($val, $p) = check_number($c, 0, 'Lattice constant c', 0);
     $problems .= $p;
-    $atoms->c($val);
+    $atoms->c($val) if $val;
 
-    ($val, $p) = check_number($alpha, 90, 'Angle alpha', 0);
+    ($val, $p) = check_number($a, 0, 'Lattice constant a', 0);
     $problems .= $p;
-    $atoms->alpha($val);
+    $atoms->a($val);
 
     ($val, $p) = check_number($beta,  90, 'Angle beta', 0);
     $problems .= $p;
@@ -126,6 +135,10 @@ get '/' => sub {
     ($val, $p) = check_number($gamma, 90, 'Angle gamma', 0);
     $problems .= $p;
     $atoms->gamma($val);
+
+    ($val, $p) = check_number($alpha, 90, 'Angle alpha', 0);
+    $problems .= $p;
+    $atoms->alpha($val);
 
 
     ## shift vector, numbers, must be interpreted e.g. 1/3 -> 0.33333
@@ -145,15 +158,15 @@ get '/' => sub {
     ## radii, numbers
     ($val, $p) = check_number($rclus, 9, 'Cluster size', 0);
     $problems .= $p;
-    $atoms->rmax($val);
+    $atoms->rmax($val) if $val;
 
     ($val, $p) = check_number($rmax, 5, 'Longest path length', 0);
     $problems .= $p;
-    $atoms->rpath($val);
+    $atoms->rpath($val) if $val;
 
     ($val, $p) = check_number($rscf, 4, 'Self consistency radius', 0);
     $problems .= $p;
-    $atoms->rscf($val);
+    $atoms->rscf($val) if $val;
 
 
     ## lists, strings
@@ -230,18 +243,16 @@ get '/' => sub {
   if ($atoms->cell->group->is_first and $#{$atoms->cell->group->shiftvec} > -1) {
     my $vec = sprintf("(%s, %s, %s)", @{$atoms->cell->group->shiftvec});
     $additional = "
- * This space group symbol identifies the first standard setting.  You may need to
- * use a shift vector of
- *
- *   $vec
- *
- * If you see multiply occupied positions or if the coordination seems wrong, you
- * should try using that shift vector.
+This space group symbol identifies the first standard setting.  You may need to
+use a shift vector of
+
+  $vec
+
+If you see multiply occupied positions or if the coordination seems wrong, you
+should try using that shift vector.
 
 ";
   };
-
-  $additional .= $warning_messages;
 
 
   if ($problems) {
@@ -251,9 +262,17 @@ get '/' => sub {
   } elsif ($atoms->cell->group->warning) {
     $response = $atoms->cell->group->warning;
   } elsif ($output eq 'object') {
-    $response = $additional . $atoms->serialization;
+    $response = $atoms->serialization;
+    $additional .= $warning_messages;
+    $additional = join("\n", map {' *!!! ' . $_} (split(/\n/, $additional))) . "\n\n" if ($additional !~ m{\A\s*\z});
+    $response = $additional . $response;
+    $warning_messages = q{};
   } elsif ($#{$atoms->sites} > -1) {
-    $response = $additional . $atoms->Write($feffv);
+    $response = $atoms->Write($feffv);
+    $additional .= $warning_messages;
+    $additional = join("\n", map {' *!!! ' . $_} (split(/\n/, $additional))) . "\n\n" if ($additional !~ m{\A\s*\z});
+    $response = $additional . $response;
+    $warning_messages = q{};
   } else {
     $response = q{};
   };

@@ -140,7 +140,7 @@
               <option value="L1">L1</option>
             <% END %>
           </select>&nbsp;&nbsp;
-          Feff Style:&nbsp;
+          ipot style:&nbsp;
           <select name="style" title="Feff version and ipot input styling">
             <% IF style.lower == "6elements" %>
               <option value="6elements" selected>Feff6 / elements</option>
@@ -211,6 +211,7 @@
 
 	<table>
 	  <tr>
+	    <th>&nbsp;</th>
 	    <th>Abs.</th>
 	    <th>Element</th>
 	    <th>x</th>
@@ -222,6 +223,7 @@
 	  <% SET ii = nsites - 1 %>
 	  <% FOREACH site in [0..ii] %>
  	  <tr>
+	    <td><% site + 1 %>.</td>
 	    <% IF icore == site %>
               <td><input type="radio" name="core" value="<% site %>" checked title="Click to make this site the absorber"></td>
 	    <% ELSE %>
