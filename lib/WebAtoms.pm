@@ -187,6 +187,9 @@ get '/' => sub {
       $problems .= "- Style is not one of elements, tags, or sites (was $s)\n";
     };
 
+    $atoms->space($space) if defined $space;
+    $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
+    $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
 
     ########################################
     # retrieve and sanitize the atoms list #
@@ -238,9 +241,6 @@ get '/' => sub {
     };
     $icore = $core;
 
-    $atoms->space($space) if defined $space;
-    $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
-    $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
     #$atoms->populate;
     if (defined($compute)) {
       $problems .= " - You have not specified a space group symbol.\n" if ($space    =~ m{\A\s*\z});
@@ -369,6 +369,7 @@ post '/upload' => sub {
   my $path = path($dir, $data->basename);
   $data->link_to($path);
 
+  $atoms->clear;
   if ($path =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {
@@ -404,6 +405,7 @@ sub fetch_url {
   open(my $I, '>', $path);
   print $I $payload;
   close $I;
+  $atoms->clear;
   if ($url =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {

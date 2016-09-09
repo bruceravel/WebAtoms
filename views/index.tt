@@ -1,4 +1,6 @@
 
+<%- USE Math -%>
+
 <div id="sidebar">
   <table width="100%">
     <tr>
@@ -23,7 +25,10 @@
 	<br>
 	&nbsp;<strong>Troubleshooting:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>&nbsp;&#183;
+	<%- examples = [ "atoms/LaCoO3.inp", "atoms/Ba2Co9O14.cif", "atoms/Ga2O3.cif", "atoms/lepidocrocite.cif",
+	    "PbFe12O19.inp", "hematite.inp", "fe.inp" ] -%>
+	<a href="<% request.uri_base %>/url?url=https://raw.githubusercontent.com/bruceravel/demeter/master/examples/<% examples.${ Math.rand(examples.size) } %>">An example</a>
       </td>
     </tr>
   </table>
