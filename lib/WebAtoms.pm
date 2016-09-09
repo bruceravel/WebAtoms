@@ -61,8 +61,9 @@ get '/' => sub {
   my $icore  = 0;
   my $feffv  = q{};
 
-  my $add   = param('add');
-  my $reset = param('reset');
+  my $add     = param('add');
+  my $reset   = param('reset');
+  my $compute = param('compute');
 
   if (param('keep')) {
     $nsites = $#{$atoms->sites};
@@ -127,6 +128,8 @@ get '/' => sub {
     ($val, $p) = check_number($a, 0, 'Lattice constant a', 0);
     $problems .= $p;
     $atoms->a($val);
+    $atoms->b($atoms->a) if ($atoms->b == 0);
+    $atoms->c($atoms->a) if ($atoms->c == 0);
 
     ($val, $p) = check_number($beta,  90, 'Angle beta', 0);
     $problems .= $p;
@@ -139,6 +142,8 @@ get '/' => sub {
     ($val, $p) = check_number($alpha, 90, 'Angle alpha', 0);
     $problems .= $p;
     $atoms->alpha($val);
+    $atoms->beta( $atoms->alpha) if ($atoms->beta  == 0);
+    $atoms->gamma($atoms->alpha) if ($atoms->gamma == 0);
 
 
     ## shift vector, numbers, must be interpreted e.g. 1/3 -> 0.33333
@@ -181,10 +186,6 @@ get '/' => sub {
     } else {
       $problems .= "- Style is not one of elements, tags, or sites (was $s)\n";
     };
-
-    $atoms->space($space) if defined $space;
-    $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
-    $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
 
 
     ########################################
@@ -236,6 +237,21 @@ get '/' => sub {
       };
     };
     $icore = $core;
+
+    $atoms->space($space) if defined $space;
+    $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
+    $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
+    #$atoms->populate;
+    if (defined($compute)) {
+      $problems .= " - You have not specified a space group symbol.\n" if ($space    =~ m{\A\s*\z});
+      $problems .= " - You have not specified lattice constants.\n"    if ($a        == 0);
+      #$problems .= " - The b lattice constant is 0.\n"                 if ($atoms->b == 0);
+      #$problems .= " - The c lattice constant is 0.\n"                 if ($atoms->c == 0);
+      #$problems .= " - The alpha angle is 0.\n"                        if ($alpha    == 0);
+      #$problems .= " - The beta angle is 0.\n"                         if ($beta     == 0);
+      #$problems .= " - The gamma angle is 0.\n"                        if ($gamma    == 0);
+    };
+
   };
 
   my $additional = q{};

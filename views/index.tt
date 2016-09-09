@@ -17,7 +17,7 @@
 	<a href="http://xafs.org/">xafs.org</a>
 	<br>
 	&nbsp;<strong>Manuals:</strong>
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/webatoms.html">WebAtoms Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html">WebAtoms Manual</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>
 	<br>
@@ -197,9 +197,9 @@
 				    title="The radial extent of the cluster written to the feff.inp file">
 	  &nbsp;
 	  Longest path:&nbsp;<input type="text" name="rmax" size="10" value="<% rmax %>"
-				    title="The longest path to be calculated by Feff's pathfinder"><br>
+				    title="The longest path to be calculated by Feff's pathfinder, i.e. Feff's RMAX token"><br>
 	</div>
-	<div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9">
+	<div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9, i.e. the r_scf argument to Feff's SCF token">
 	  SCF radius:&nbsp;&nbsp;&nbsp;<input type="text" name="rscf" size="10" value="<% rscf %>">
 	</div>
 	<div id="lattice" title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
@@ -241,10 +241,10 @@
 
 	<p></p>
 	<div>
-	  <input type="submit" value="Compute" style="font-weight: bold; color:#401490;">&nbsp;&nbsp;&nbsp;
-	  <input type="submit" name="reset" value="Reset">
+	  <input type="submit" name="compute" value="Compute" style="font-weight: bold; color:#401490;">&nbsp;&nbsp;&nbsp;
+	  <input type="submit" name="reset"   value="Reset">
 	  <span style="display:inline-block; width: 30%;"></span>
-	  <input type="submit" name="add" value="Add a site">
+	  <input type="submit" name="add"     value="Add a site">
 	</div>
       </form>
     </div>
@@ -253,7 +253,8 @@
 
     <!-- <div id="footer"> -->
     <div id="versions">
-      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> v<% waversion %> is
+      <a href="https://github.com/bruceravel/WebAtoms">WebAtoms</a> v<% waversion %> was
+      made by Bruce Ravel and is
       powered by <a href="http://perldancer.org/">Dancer</a>
       <% dancer_version %> and
       <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
