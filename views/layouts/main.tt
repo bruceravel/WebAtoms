@@ -5,6 +5,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
 <title>WebAtoms</title>
 <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
+<link rel="stylesheet" href="<% request.uri_base %>/css/ribbon.css" />
 <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->

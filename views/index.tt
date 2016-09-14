@@ -2,10 +2,14 @@
 <%- USE Math -%>
 
 <div id="sidebar">
+  <div class="ribbon-wrapper-green"><div class="ribbon"><a href="https://github.com/bruceravel/WebAtoms">Fork @ GitHub</a></div></div>
+  <!-- <a href="https://github.com/bruceravel/WebAtoms"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a> -->
   <table width="100%">
     <tr>
       <td width="50%">
+	<span style="display:inline-block; width: 15%;"></span>
 	<a href="<% request.uri_base %>" class="title">WebAtoms</a><br>
+	<span style="display:inline-block; width: 15%;"></span>
 	<span class="subtitle">Convert crystallographic data into a Feff input file</span>
       </td>
       <td width="50%">
@@ -265,6 +269,7 @@
       <a href="http://bruceravel.github.io/demeter/">Demeter</a> <% dversion %>.
     </div>
     <!-- </div> -->
+    <span style="display:inline-block; width: 20px;"></span>
     <a href="#" id="about_env_link">WebAtoms environment</a>
     <div id="about-content" style="display: none;">
       <table>
@@ -321,7 +326,11 @@
       <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
 <% response %>
       </textarea>
-      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary">Save as <tt><% outfile %></tt></button>
+      <% IF response %>
+      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;">Save as <tt><% outfile %></tt></button>
+      <% ELSE %>
+      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;" disabled>Save as <tt><% outfile %></tt></button>
+      <% END %>
       <%# thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js #%>
       <script type="text/javascript">
 	$("#btn-save").click( function() {

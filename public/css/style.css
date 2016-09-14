@@ -23,7 +23,6 @@ h1 {
     color: #401490;
     font-family: sans-serif;
     margin: 1.2em 0 0.6em 0;
-    padding-left: 5%;
 }
 .title:hover {
     background-color: #401490;
@@ -33,7 +32,6 @@ h1 {
     font-weight: bold;
     font-family: sans-serif;
     margin: 1.2em 0 0.6em 0;
-    padding-left: 5%;
 }
 .subtitle {
     color: #666;
@@ -41,7 +39,6 @@ h1 {
     font-size: 16px;
     font-family: sans-serif;
     margin: 1.2em 0 0.6em 0;
-    padding-left: 5%;
 }
     
 
@@ -81,6 +78,7 @@ a:hover {
     height: 85vh;
     overflow: auto;
     border-style: none;
+    border-radius: 15px;
 }
 
 #sidebar {
@@ -97,7 +95,6 @@ a:hover {
     padding-left: 75px;
     padding-right: 30px;
 }
-
 
 #header {
     background-repeat: no-repeat;
@@ -259,6 +256,7 @@ code, tt {
     width: 48%;
     float: right;
     height: 86.2vh;
+    border-radius: 15px;
 }
 
 #response textarea {
@@ -267,12 +265,16 @@ code, tt {
     width: 100%;
     padding: 3px 0px 3px 3px;
     margin-bottom: 5px;
+    margin-top: 5px;
     border: none;
     height: calc(100% - 50px);
     /* background-color: #F1F0FA; */
     background-color: white;
     overflow-wrap: normal;
     overflow-x: auto;
+    border-radius: 15px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
 }
 
 

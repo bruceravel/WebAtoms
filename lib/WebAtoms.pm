@@ -33,6 +33,7 @@ use Dancer ':syntax';
 #use Demeter qw(:atoms);
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
+use Chemistry::Elements qw(get_symbol);
 use File::Copy;
 use List::Util qw(max);
 use List::MoreUtils; # not importing "any" to avoid collision with Dancer's "any"
@@ -71,6 +72,9 @@ get '/' => sub {
     foreach my $i (0 .. $nsites) {
       next if not $atoms->sites->[$i];
       ($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
+    };
+    if (defined(param('urlfail'))) {
+      $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
     };
 
   } elsif (defined($reset)) {
@@ -217,7 +221,7 @@ get '/' => sub {
       $y->[$i] = _interpret($y->[$i]);
       $z->[$i] = _interpret($z->[$i]);
 
-      if ($e->[$i] and (not is_Element($e->[$i]))) {
+      if ($e->[$i] and (not is_Element(get_symbol($e->[$i])))) {
 	$site_problems .= sprintf("- Symbol for site %d is not a valid element symbol (was $e->[$i])\n", $i+1);
       };
       ($val, $p) = check_number($x->[$i], 0, sprintf("x coordinate for site %d", $i+1), 1);
@@ -230,7 +234,7 @@ get '/' => sub {
       $site_problems .= $p;
       $z->[$i] = $val;
 
-
+      $e->[$i] = get_symbol($e->[$i]);
       if ($site_problems) {
 	$problems .= $site_problems;
       } elsif (is_Element($e->[$i])) {
@@ -273,10 +277,12 @@ should try using that shift vector.
 
   if ($problems) {
     $response = $problems;
+    $output = "trouble";
   } elsif (defined($add) or defined($reset)) {
     $response = q{};
   } elsif ($atoms->cell->group->warning) {
     $response = $atoms->cell->group->warning;
+    $output = "trouble";
   } elsif ($output eq 'object') {
     $response = $atoms->serialization;
     $additional .= $warning_messages;
@@ -311,6 +317,8 @@ should try using that shift vector.
   my $outfile = $output;
   if ($output =~ m{atoms|feff|p1}) {
     $outfile .= '.inp';
+  } elsif ($output =~ m{trouble}) {
+    $outfile .= '.txt';
   } else {
     $outfile .= '.dat';
   };
@@ -350,6 +358,11 @@ get '/url' => sub {
     redirect '/?keep=1';
     return;
   };
+  # if (fetch_url($url)) {
+  #   redirect '/?keep=1';
+  # } else {
+  #   redirect '/?keep=1&urlfail='.$url;
+  # };
   fetch_url($url);
   redirect '/?keep=1';
 };
@@ -373,7 +386,12 @@ post '/upload' => sub {
   if ($path =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {
-    $atoms->file($path);
+    if (Demeter->is_atoms($path)) {
+      $atoms->file($path);
+    } else {
+      redirect '/?keep=1&urlfail='.$path;
+      return;
+    };
   };
   unlink $path;
   redirect '/?keep=1';
@@ -385,8 +403,11 @@ post '/fetch' => sub {
     redirect '/?keep=1';
     return;
   };
-  fetch_url($url);
-  redirect '/?keep=1';
+  if (fetch_url($url)) {
+    redirect '/?keep=1';
+  } else {
+    redirect '/?keep=1&urlfail='.$url;
+  };
 };
 
 sub fetch_url {
@@ -396,7 +417,9 @@ sub fetch_url {
   my $response = HTTP::Tiny->new->get($url);
   if ($response->{success}) {
     $payload = $response->{content};
-  }
+  } else {
+    return 0;
+  };
 
   my $dir = path(config->{appdir}, 'uploads');
   mkdir $dir if not -e $dir;
@@ -409,9 +432,14 @@ sub fetch_url {
   if ($url =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {
-    $atoms->file($path);
+    if (Demeter->is_atoms($path)) {
+      $atoms->file($path);
+    } else {
+      return 0;
+    };
   };
   unlink $path;
+  return 1;
 };
 
 
