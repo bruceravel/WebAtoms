@@ -72,13 +72,14 @@ a:hover {
     background-color: white;
     border: 3px solid #aaa;
     padding: 5px;
+    padding-right: 0px;
     margin-top: 0%;
-    width: 48%;
     float: left;
+    width: calc(49% - 5px);
     height: 85vh;
     overflow: auto;
     border-style: none;
-    border-radius: 15px;
+    border-radius: 15px 0px 0px 15px;
 }
 
 #sidebar {
@@ -253,10 +254,10 @@ code, tt {
     padding-right: 10px;
     margin-top: 0%;
     border-style: none;
-    width: 48%;
+    width: calc(49% - 10px);
     float: right;
     height: 86.2vh;
-    border-radius: 15px;
+    border-radius: 0px 15px 15px 0px;
 }
 
 #response textarea {
@@ -272,7 +273,7 @@ code, tt {
     background-color: white;
     overflow-wrap: normal;
     overflow-x: auto;
-    border-radius: 15px;
+    border-radius: 0px 15px 15px 0px;
     font-family: "Courier New", Courier, monospace;
     font-size: 12px;
 }

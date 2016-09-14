@@ -13,7 +13,7 @@
 	<span class="subtitle">Convert crystallographic data into a Feff input file</span>
       </td>
       <td width="50%">
-	&nbsp;<strong>Links:</strong>
+	<span style="display:inline-block; width: 2%;"></span><strong>Links:</strong>
 	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/"
 	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, about the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/">Demeter</a>&nbsp;&#183;
@@ -22,12 +22,12 @@
 	<a href="https://github.com/newville/ifeffit">Ifeffit</a>&nbsp;&#183;
 	<a href="http://xafs.org/">xafs.org</a>
 	<br>
-	&nbsp;<strong>Manuals:</strong>
+	<span style="display:inline-block; width: 2%;"></span><strong>Manuals:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html">WebAtoms Manual</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>
 	<br>
-	&nbsp;<strong>Troubleshooting:</strong>
+	<span style="display:inline-block; width: 2%;"></span><strong>Troubleshooting:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>&nbsp;&#183;
 	<%- examples = [ "atoms/LaCoO3.inp", "atoms/Ba2Co9O14.cif", "atoms/Ga2O3.cif", "atoms/lepidocrocite.cif",
@@ -54,7 +54,7 @@
       <form action="/fetch" method="POST" enctype="multipart/form-data">
 	<input type="text" name="url" size="30">
 	<input type="submit" name="submit" value="Import file from web"
-	       title="Input the path to an atoms.inp or CIF file on the web then import it by clicking this button">
+	       title="Input the URL for an atoms.inp or CIF file on the web then import it by clicking this button">
       </form>
 
       <br><hr><br>
