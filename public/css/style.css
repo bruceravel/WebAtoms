@@ -82,6 +82,7 @@ a:hover {
     border-radius: 15px 0px 0px 15px;
 }
 
+/* misnomer, actually a top bar */
 #sidebar {
     z-index: 99;
     background-color: #F1F0FA;
