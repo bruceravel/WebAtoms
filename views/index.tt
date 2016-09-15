@@ -2,7 +2,7 @@
 <%- USE Math -%>
 
 <div id="sidebar">
-  <div class="ribbon-wrapper-green"><div class="ribbon"><a href="https://github.com/bruceravel/WebAtoms">Fork @ GitHub</a></div></div>
+  <div class="ribbon-wrapper-green"><div class="ribbon"><a href="https://github.com/bruceravel/WebAtoms" target="_blank">Fork @ GitHub</a></div></div>
   <!-- <a href="https://github.com/bruceravel/WebAtoms"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a> -->
   <table width="100%">
     <tr>
@@ -14,22 +14,22 @@
       </td>
       <td width="50%">
 	<span style="display:inline-block; width: 2%;"></span><strong>Links:</strong>
-	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/"
+	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/" target="_blank"
 	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, about the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/">Demeter</a>&nbsp;&#183;
-	<a href="http://feffproject.org/">Feff</a>&nbsp;&#183;
-	<a href="http://xraypy.github.io/xraylarch/">Larch</a>&nbsp;&#183;
-	<a href="https://github.com/newville/ifeffit">Ifeffit</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/" target="_blank">Demeter</a>&nbsp;&#183;
+	<a href="http://feffproject.org/" target="_blank">Feff</a>&nbsp;&#183;
+	<a href="http://xraypy.github.io/xraylarch/" target="_blank">Larch</a>&nbsp;&#183;
+	<a href="https://github.com/newville/ifeffit" target="_blank">Ifeffit</a>&nbsp;&#183;
 	<a href="http://xafs.org/">xafs.org</a>
 	<br>
 	<span style="display:inline-block; width: 2%;"></span><strong>Manuals:</strong>
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html">WebAtoms Manual</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html">Athena Manual</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html">Artemis Manual</a>
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html" target="_blank">WebAtoms Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html"  target="_blank">Athena Manual</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html" target="_blank">Artemis Manual</a>
 	<br>
 	<span style="display:inline-block; width: 2%;"></span><strong>Troubleshooting:</strong>
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html">Bug reporting hints</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html">How to ask a good question</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html" target="_blank">Bug reporting hints</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html" target="_blank">How to ask a good question</a>&nbsp;&#183;
 	<%- examples = [ "atoms/LaCoO3.inp", "atoms/Ba2Co9O14.cif", "atoms/Ga2O3.cif", "atoms/lepidocrocite.cif",
 	    "PbFe12O19.inp", "hematite.inp", "fe.inp" ] -%>
 	<a href="<% request.uri_base %>/url?url=https://raw.githubusercontent.com/bruceravel/demeter/master/examples/<% examples.${ Math.rand(examples.size) } %>">An example</a>
@@ -61,160 +61,175 @@
       
       <form>
 	<div id="lattice">
-	  Space group:&nbsp;<input type="text" name="space" size="10"
-	       	     		   title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
-				   value="<% space %>">&nbsp;&nbsp;
-	  Output:&nbsp;
-	  <select name="output" title="Specify the kind of output file" id="output">
-            <% IF (matches = outfile.lower.match('^feff')) %>
-              <option value="feff" selected>feff.inp</option>
-	    <% ELSE %>
-              <option value="feff">feff.inp</option>
-            <% END %>
+	  <table>
+	    <tr>
+	      <td>&nbsp;&nbsp;Space group:</td><td><input type="text" name="space" size="12"
+	       	     					  title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
+							  value="<% space %>"></td>
+	      <td>&nbsp;&nbsp;Output:</td><td>
+		<select name="output" title="Specify the kind of output file" id="output">
+		  <% IF (matches = outfile.lower.match('^feff')) %>
+		  <option value="feff" selected>feff.inp</option>
+		  <% ELSE %>
+		  <option value="feff">feff.inp</option>
+		  <% END %>
 	      
-            <% IF (matches = outfile.lower.match('^atoms')) %>
-              <option value="atoms" selected>atoms.inp</option>
-	    <% ELSE %>
-              <option value="atoms">atoms.inp</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^atoms')) %>
+		  <option value="atoms" selected>atoms.inp</option>
+		  <% ELSE %>
+		  <option value="atoms">atoms.inp</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^p1')) %>
-              <option value="p1" selected>P1 file</option>
-	    <% ELSE %>
-              <option value="p1">P1 file</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^p1')) %>
+		  <option value="p1" selected>P1 file</option>
+		  <% ELSE %>
+		  <option value="p1">P1 file</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^spacegroup')) %>
-              <option value="spacegroup" selected>Space group</option>
-	    <% ELSE %>
-              <option value="spacegroup">Space group</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^spacegroup')) %>
+		  <option value="spacegroup" selected>Space group</option>
+		  <% ELSE %>
+		  <option value="spacegroup">Space group</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^absorption')) %>
-              <option value="absorption" selected>Absorption</option>
-	    <% ELSE %>
-              <option value="absorption">Absorption</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^absorption')) %>
+		  <option value="absorption" selected>Absorption</option>
+		  <% ELSE %>
+		  <option value="absorption">Absorption</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^xyz')) %>
-              <option value="xyz" selected>XYZ</option>
-	    <% ELSE %>
-              <option value="xyz">XYZ</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^xyz')) %>
+		  <option value="xyz" selected>XYZ</option>
+		  <% ELSE %>
+		  <option value="xyz">XYZ</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^alchemy')) %>
-              <option value="alchemy" selected>Alchemy</option>
-	    <% ELSE %>
-              <option value="alchemy">Alchemy</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^alchemy')) %>
+		  <option value="alchemy" selected>Alchemy</option>
+		  <% ELSE %>
+		  <option value="alchemy">Alchemy</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^overfull')) %>
-              <option value="overfull" selected>Overfull cell</option>
-	    <% ELSE %>
-              <option value="overfull">Overfull cell</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^overfull')) %>
+		  <option value="overfull" selected>Overfull cell</option>
+		  <% ELSE %>
+		  <option value="overfull">Overfull cell</option>
+		  <% END %>
 
-            <% IF (matches = outfile.lower.match('^object')) %>
-              <option value="object" selected>(diagnostic)</option>
-	    <% ELSE %>
-	      <option value="object">(diagnostic)</option>
-            <% END %>
+		  <% IF (matches = outfile.lower.match('^object')) %>
+		  <option value="object" selected>(diagnostic)</option>
+		  <% ELSE %>
+		  <option value="object">(diagnostic)</option>
+		  <% END %>
 
-	  </select>&nbsp;&nbsp;
+		</select>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>&nbsp;&nbsp;Edge:</td><td>
+		<select name="edge" title="Absorption edge of the measurement">
+		  <% IF edge.lower == "k" %>
+		  <option value="K" selected>K</option>
+		  <% ELSE %>
+		  <option value="K">K</option>
+		  <% END %>
+
+		  <% IF edge.lower == "l3" %>
+		  <option value="L3" selected>L3</option>
+		  <% ELSE %>
+		  <option value="L3">L3</option>
+		  <% END %>
+
+		  <% IF edge.lower == "l2" %>
+		  <option value="L2" selected>L2</option>
+		  <% ELSE %>
+		  <option value="L2">L2</option>
+		  <% END %>
+
+		  <% IF edge.lower == "l1" %>
+		  <option value="L1" selected>L1</option>
+		  <% ELSE %>
+		  <option value="L1">L1</option>
+		  <% END %>
+		</select>
+	      </td>
+	      <td>&nbsp;&nbsp;ipot style:</td><td>
+		<select name="style" title="Feff version and ipot input styling">
+		  <% IF style.lower == "6elements" %>
+		  <option value="6elements" selected>Feff6 / elements</option>
+		  <% ELSE %>
+		  <option value="6elements">Feff6 / elements</option>
+		  <% END %>
+		  
+		  <% IF style.lower == "6tags" %>
+		  <option value="6tags" selected>Feff6 / tags</option>
+		  <% ELSE %>
+		  <option value="6tags">Feff6 / tags</option>
+		  <% END %>
+
+		  <% IF style.lower == "6sites" %>
+		  <option value="6sites" selected>Feff6 / sites</option>
+		  <% ELSE %>
+		  <option value="6sites">Feff6 / sites</option>
+		  <% END %>
+
+		  <% IF style.lower == "8elements" %>
+		  <option value="8elements" selected>Feff8 / elements</option>
+		  <% ELSE %>
+		  <option value="8elements">Feff8 / elements</option>
+		  <% END %>
+
+		  <% IF style.lower == "8tags" %>
+		  <option value="8tags" selected>Feff8 / tags</option>
+		  <% ELSE %>
+		  <option value="8tags">Feff8 / tags</option>
+		  <% END %>
+
+		  <% IF style.lower == "8sites" %>
+		  <option value="8sites" selected>Feff8 / sites</option>
+		  <% ELSE %>
+		  <option value="8sites">Feff8 / sites</option>
+		  <% END %>
+		</select>
+	      </td>
+	    </tr>
+	  </table>
 	</div>
+	<p></p>
+	<div id="lattice" title="The lattice constants in &Aring;ngstrom units and lattice angles in degrees (&alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b))">
+	  <table>
+	    <tr>
+	      <td>&nbsp;&nbsp;A:</td><td><input type="text" name="a" size="10" value="<% a %>"></td>
+	      <td>&nbsp;&nbsp;B:</td><td><input type="text" name="b" size="10" value="<% b %>"></td>
+	      <td>&nbsp;&nbsp;C:</td><td><input type="text" name="c" size="10" value="<% c %>"></td>
+	    </tr>
+	    <tr>
+	      <td>&nbsp;&nbsp;&alpha;:</td><td><input type="text" name="alpha" size="10" value="<% alpha %>"></td>
+	      <td>&nbsp;&nbsp;&beta;:</td><td><input type="text" name="beta" size="10" value="<% beta %>"></td>
+	      <td>&nbsp;&nbsp;&gamma;:</td><td><input type="text" name="gamma" size="10" value="<% gamma %>"></td>
+	    </tr>
+	  </table>
+	</div>
+	<p></p>
+	<p></p>
 	<div id="lattice">
-	  Edge:&nbsp;
-          <select name="edge" title="Absorption edge of the measurement">
-            <% IF edge.lower == "k" %>
-              <option value="K" selected>K</option>
-            <% ELSE %>
-              <option value="K">K</option>
-            <% END %>
-
-            <% IF edge.lower == "l3" %>
-              <option value="L3" selected>L3</option>
-            <% ELSE %>
-              <option value="L3">L3</option>
-            <% END %>
-
-	    <% IF edge.lower == "l2" %>
-              <option value="L2" selected>L2</option>
-            <% ELSE %>
-              <option value="L2">L2</option>
-            <% END %>
-
-	    <% IF edge.lower == "l1" %>
-              <option value="L1" selected>L1</option>
-            <% ELSE %>
-              <option value="L1">L1</option>
-            <% END %>
-          </select>&nbsp;&nbsp;
-          ipot style:&nbsp;
-          <select name="style" title="Feff version and ipot input styling">
-            <% IF style.lower == "6elements" %>
-              <option value="6elements" selected>Feff6 / elements</option>
-            <% ELSE %>
-              <option value="6elements">Feff6 / elements</option>
-            <% END %>
-	      
-            <% IF style.lower == "6tags" %>
-              <option value="6tags" selected>Feff6 / tags</option>
-            <% ELSE %>
-              <option value="6tags">Feff6 / tags</option>
-            <% END %>
-
-            <% IF style.lower == "6sites" %>
-              <option value="6sites" selected>Feff6 / sites</option>
-            <% ELSE %>
-              <option value="6sites">Feff6 / sites</option>
-            <% END %>
-
-            <% IF style.lower == "8elements" %>
-              <option value="8elements" selected>Feff8 / elements</option>
-            <% ELSE %>
-              <option value="8elements">Feff8 / elements</option>
-            <% END %>
-
-            <% IF style.lower == "8tags" %>
-              <option value="8tags" selected>Feff8 / tags</option>
-            <% ELSE %>
-              <option value="8tags">Feff8 / tags</option>
-            <% END %>
-
-            <% IF style.lower == "8sites" %>
-              <option value="8sites" selected>Feff8 / sites</option>
-            <% ELSE %>
-              <option value="8sites">Feff8 / sites</option>
-            <% END %>
-	  </select>
-	</div>
-	<p></p>
-	<div id="lattice" title="The lattice constants in &Aring;ngstrom units">
-	  A:&nbsp;<input type="text" name="a" size="10" value="<% a %>">&nbsp;
-	  B:&nbsp;<input type="text" name="b" size="10" value="<% b %>" >&nbsp;
-	  C:&nbsp;<input type="text" name="c" size="10" value="<% c %>" >
-	</div>
-	<div id="lattice" title="The lattice angles in degrees, &alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b)">
-	  &alpha;:&nbsp;<input type="text" name="alpha" size="10" value="<% alpha %>">&nbsp;
-	  &beta;:&nbsp;<input type="text" name="beta" size="10" value="<% beta %>">&nbsp;
-	  &gamma;:&nbsp;<input type="text" name="gamma" size="10" value="<% gamma %>">
-	</div>
-	<p></p>
-	<p></p>
-	<div id="lattice">
-	  Cluster size:&nbsp;<input type="text" name="rclus" size="10" value="<% rclus %>"
-				    title="The radial extent of the cluster written to the feff.inp file">
-	  &nbsp;
-	  Longest path:&nbsp;<input type="text" name="rmax" size="10" value="<% rmax %>"
-				    title="The longest path to be calculated by Feff's pathfinder, i.e. Feff's RMAX token"><br>
-	</div>
-	<div id="lattice" title="The radius used for computing self-consistent potentials in Feff8/9, i.e. the r_scf argument to Feff's SCF token">
-	  SCF radius:&nbsp;&nbsp;&nbsp;<input type="text" name="rscf" size="10" value="<% rscf %>">
-	</div>
-	<div id="lattice" title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
-	  Shift vector:&nbsp;<input type="text" name="shift_x" size="8" value="<% shift_x %>">&nbsp;
-	  <input type="text" name="shift_y" size="8" value="<% shift_y %>">&nbsp;
-	  <input type="text" name="shift_z" size="8" value="<% shift_z %>">
+	  <table>
+	    <tr>
+	      <td>&nbsp;&nbsp;Cluster size:</td><td><input type="text" name="rclus" size="10" value="<% rclus %>"
+							   title="The radial extent of the cluster written to the feff.inp file"></td>
+	      <td>&nbsp;&nbsp;Longest path:</td><td><input type="text" name="rmax" size="10" value="<% rmax %>"
+							   title="The longest path to be calculated by Feff's pathfinder, i.e. Feff's RMAX token"></td>
+	    </tr>
+	    <tr>
+	      <td>&nbsp;&nbsp;SCF radius:</td><td><input type="text" name="rscf" size="10" value="<% rscf %>"
+							 title="The radius used for computing self-consistent potentials in Feff8/9, i.e. the r_scf argument to Feff's SCF token"></td>
+	    </tr>
+	    <tr title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
+	      <td>&nbsp;&nbsp;Shift vector:</td><td><input type="text" name="shift_x" size="10" value="<% shift_x %>"></td>
+	      <td><input type="text" name="shift_y" size="10" value="<% shift_y %>"></td>
+	      <td><input type="text" name="shift_z" size="10" value="<% shift_z %>"></td>
+	    </tr>
+	  </table>
 	</div>
 	<p></p>
 
