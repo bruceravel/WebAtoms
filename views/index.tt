@@ -45,18 +45,24 @@
 
     <div id="getting-started">
       <form action="/upload" method="POST" enctype="multipart/form-data">
-	<input type="file" name="file">
-	<input type="submit" name="submit" value="Import local file"
-	       title="Select a file from your computer with the Browse button then import it by clicking this button">
+	<fieldset>
+	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file on your computer</legend>
+	  <input type="file" name="file">
+	  <input type="submit" name="submit" value="Submit crystal data"
+		 title="Select a file from your computer with the Browse button then import it by clicking this button">
+	</fieldset>
       </form>
-      <br>
       <form action="/fetch" method="POST" enctype="multipart/form-data">
-	<input type="text" name="url" size="30">
-	<input type="submit" name="submit" value="Import file from web"
-	       title="Input the URL for an atoms.inp or CIF file on the web then import it by clicking this button">
+	<fieldset>
+	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file from the web (type URL, hit return) </legend>
+	  <span id="inputboxspan">
+	    <input type="text" name="url" width="100%" style="width: 95%;"
+		   title="Input the URL for an atoms.inp or CIF file on the web then hit return.">
+	    </span>
+	</fieldset>
       </form>
 
-      <br><hr><br>
+      <hr><br>
       
       <form>
 	<div id="lattice">
@@ -335,27 +341,25 @@
   </div>
     
 
-  <form action="/save">
-    <div id="response">
-      <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
+  <div id="response">
+    <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
 <% response %>
-      </textarea>
-      <% IF response %>
-      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;">Save as <tt><% outfile %></tt></button>
-      <% ELSE %>
-      &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;" disabled>Save as <tt><% outfile %></tt></button>
-      <% END %>
-      <%# thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js #%>
-      <script type="text/javascript">
-	$("#btn-save").click( function() {
-	var text = $("#atomsoutput").val();
-	var filename = "<% outfile %>";
-	var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-	saveAs(blob, filename);
-	});
-      </script>
-    </div>
-  </form>
+    </textarea>
+    <% IF response %>
+    &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;">Save as <tt><% outfile %></tt></button>
+    <% ELSE %>
+    &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;" disabled>Save as <tt><% outfile %></tt></button>
+    <% END %>
+    <!-- thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js -->
+    <script type="text/javascript">
+      $("#btn-save").click( function() {
+      var text = $("#atomsoutput").val();
+      var filename = "<% outfile %>";
+      var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, filename);
+      });
+    </script>
+  </div>
     
 </div>
 

@@ -10,7 +10,8 @@ BEGIN {
 
 #### ===============================================================
 #### This is used to capture error messages from Xray::Crystal::Cell
-#### in a way that can be displayed in the response box of WebAtoms
+#### and Demeter::Atoms in a way that can be displayed in the response
+#### box of WebAtoms
 BEGIN {
   use Demeter qw(:atoms :ui=web);
 }
@@ -352,22 +353,23 @@ should try using that shift vector.
 };
 
 
-get '/url' => sub {
+##########################################################################################
+# url route, read the provided URL, load data into an Atoms object, reroute to main page #
+##########################################################################################
+post '/url' => sub {
   my $url = param('url');
   if ($url =~ m{\A\s*\z}) {
     redirect '/?keep=1';
     return;
   };
-  # if (fetch_url($url)) {
-  #   redirect '/?keep=1';
-  # } else {
-  #   redirect '/?keep=1&urlfail='.$url;
-  # };
   fetch_url($url);
   redirect '/?keep=1';
 };
 
 
+###############################################################################################
+# url route, read the provided filename, load data into an Atoms object, reroute to main page #
+###############################################################################################
 ## thanks Gabor!  http://perlmaven.com/uploading-files-with-dancer2
 post '/upload' => sub {
   my $data = request->upload('file');
@@ -376,12 +378,15 @@ post '/upload' => sub {
     return;
   };
 
+  ## make sure the uploads directory exists
   my $dir = path(config->{appdir}, 'uploads');
   mkdir $dir if not -e $dir;
 
+  ## copy the file to the server's disk space
   my $path = path($dir, $data->basename);
   $data->link_to($path);
 
+  ## import the file's content into a Demeter::Atoms object
   $atoms->clear;
   if ($path =~ m{cif\z}i) {
     $atoms->cif($path);
@@ -393,10 +398,17 @@ post '/upload' => sub {
       return;
     };
   };
+
+  ## clean up and redirect to the main page
   unlink $path;
   redirect '/?keep=1';
 };
 
+
+##################################################################################
+# fetch route, read the URL provided by the form, load data into an Atoms object #
+# reroute to main page 								 #
+##################################################################################
 post '/fetch' => sub {
   my $url = param('url');
   if ($url =~ m{\A\s*\z}) {
@@ -410,9 +422,14 @@ post '/fetch' => sub {
   };
 };
 
+
+#######################################################
+# this is the workhorse for the frtech and url routes #
+#######################################################
 sub fetch_url {
   my ($url) = @_;
 
+  ## fetch the content provided by the URL
   my $payload;
   my $response = HTTP::Tiny->new->get($url);
   if ($response->{success}) {
@@ -421,13 +438,17 @@ sub fetch_url {
     return 0;
   };
 
+  ## make sure the uploads directory exists
   my $dir = path(config->{appdir}, 'uploads');
   mkdir $dir if not -e $dir;
 
+  ## write the URL content to a local file
   my $path = path($dir, "fromweb");
   open(my $I, '>', $path);
   print $I $payload;
   close $I;
+
+  ## import the URL content into a Demeter::Atoms object
   $atoms->clear;
   if ($url =~ m{cif\z}i) {
     $atoms->cif($path);
@@ -438,15 +459,20 @@ sub fetch_url {
       return 0;
     };
   };
+
+  ## clean up and done
   unlink $path;
   return 1;
 };
 
 
+## callback for $SIG{__WARN__}
 sub accumulate {
   $warning_messages .= $_[0];
 };
 
+
+## safely evaluate a "number" like 1/2 into a float
 sub _interpret {
   my ($str) = @_;
   my $cpt = new Safe;
@@ -454,6 +480,9 @@ sub _interpret {
   return $retval;
 };
 
+## verify that $number can be interpreted as an integer or a float,
+## optionally checking if it is negative, returning a sensible default
+## if not a number
 sub check_number {
   my ($number, $default, $prefix, $negok) = @_;
   my $problem = q{};

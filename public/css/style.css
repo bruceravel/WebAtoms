@@ -296,3 +296,11 @@ code, tt {
 #computebutton {
     background-color: red;
 };
+
+
+#inputboxspan {
+    display: block;
+    overflow: hidden;
+    padding-right: 5px;
+    padding-left: 10px;
+}
