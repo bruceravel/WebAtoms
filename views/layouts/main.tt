@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
-<title>WebAtoms</title>
+<title>WebAtoms<% file %></title>
 <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
 <link rel="stylesheet" href="<% request.uri_base %>/css/ribbon.css" />
 <link rel="icon" type="image/x-icon" href="favicon.ico" />

@@ -34,6 +34,7 @@ use Dancer ':syntax';
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use Chemistry::Elements qw(get_symbol);
+use File::Basename;
 use File::Copy;
 use List::Util qw(max);
 use List::MoreUtils; # not importing "any" to avoid collision with Dancer's "any"
@@ -65,19 +66,13 @@ get '/' => sub {
   my $add     = param('add');
   my $reset   = param('reset');
   my $compute = param('compute');
+  my $file    = param('file');
 
   if (param('keep')) {
-    $nsites = $#{$atoms->sites};
-    $nsites = 4 if $nsites == -1;
-    foreach my $i (0 .. $nsites) {
-      next if not $atoms->sites->[$i];
-      ($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
-    };
     if (defined(param('urlfail'))) {
       $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
-    } elsif (defined(param('file'))) {
-      my $path = param('file');
-      $path = path(config->{appdir}, 'uploads', $path);
+    } elsif (defined($file)) {
+      my $path = path(config->{appdir}, 'uploads', $file);
       $atoms->clear;
       if ($path =~ m{cif\z}i) {
 	$atoms->cif($path);
@@ -85,10 +80,18 @@ get '/' => sub {
 	if (Demeter->is_atoms($path)) {
 	  $atoms->file($path);
 	} else {
-	  $problems = "- unable to read $path as crystal data\n";
+	  $problems = "- unable to read $file as crystal data\n";
 	};
       };
       unlink $path;
+    };
+
+    ## jigger sites into the form the template expects
+    $nsites = $#{$atoms->sites};
+    $nsites = 4 if $nsites == -1;
+    foreach my $i (0 .. $nsites) {
+      next if not $atoms->sites->[$i];
+      ($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
     };
 
   } elsif (defined($reset)) {
@@ -336,6 +339,10 @@ should try using that shift vector.
     $outfile .= '.dat';
   };
 
+  if (defined($file) and ($file !~ m{\A\s*\z})) {
+    $file = ' - ' . $file;
+  };
+
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
 		     nsites    => $nsites,
@@ -360,6 +367,7 @@ should try using that shift vector.
 		     y	       => $y,
 		     z	       => $z,
 		     t	       => $t,
+		     file      => $file,
 		     outfile   => $outfile,
 		     response  => $response};
 };
@@ -368,15 +376,15 @@ should try using that shift vector.
 ##########################################################################################
 # url route, read the provided URL, load data into an Atoms object, reroute to main page #
 ##########################################################################################
-post '/url' => sub {
+get '/url' => sub {
   my $url = param('url');
   if ($url =~ m{\A\s*\z}) {
     redirect '/?keep=1';
     return;
   };
-  my $path = fetch_url($url);	# URL copied to local upload directory
-  if ($path) {
-    redirect '/?keep=1&file='.$path->basename;
+  my $file = fetch_url($url);	# URL copied to local upload directory
+  if ($file) {
+    redirect '/?keep=1&file='.$file;
   } else {
     redirect '/?keep=1&urlfail='.$url;
   };
@@ -417,9 +425,9 @@ post '/fetch' => sub {
     redirect '/?keep=1';
     return;
   };
-  my $path = fetch_url($url);	# URL copied to local upload directory
-  if ($path) {
-    redirect '/?keep=1&file='.$path->basename;
+  my $file = fetch_url($url);	# URL copied to local upload directory
+  if ($file) {
+    redirect '/?keep=1&file='.$file;
   } else {
     redirect '/?keep=1&urlfail='.$url;
   };
@@ -440,13 +448,14 @@ sub fetch_url {
   } else {
     return 0;
   };
+  my $file = basename($url);
 
   ## make sure the uploads directory exists
   my $dir = path(config->{appdir}, 'uploads');
   mkdir $dir if not -e $dir;
 
   ## write the URL content to a local file
-  my $path = path($dir, "fromweb");
+  my $path = path($dir, $file);
   open(my $I, '>', $path);
   print $I $payload;
   close $I;
@@ -465,7 +474,7 @@ sub fetch_url {
 
   # ## clean up and done
   # unlink $path;
-  return $path;
+  return $file;
 };
 
 
