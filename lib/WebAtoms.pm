@@ -31,7 +31,6 @@ sub carp {
 
 package WebAtoms;
 use Dancer ':syntax';
-#use Demeter qw(:atoms);
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use Chemistry::Elements qw(get_symbol);
@@ -76,6 +75,20 @@ get '/' => sub {
     };
     if (defined(param('urlfail'))) {
       $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
+    } elsif (defined(param('file'))) {
+      my $path = param('file');
+      $path = path(config->{appdir}, 'uploads', $path);
+      $atoms->clear;
+      if ($path =~ m{cif\z}i) {
+	$atoms->cif($path);
+      } else {
+	if (Demeter->is_atoms($path)) {
+	  $atoms->file($path);
+	} else {
+	  $problems = "- unable to read $path as crystal data\n";
+	};
+      };
+      unlink $path;
     };
 
   } elsif (defined($reset)) {
@@ -300,7 +313,6 @@ should try using that shift vector.
     $response = q{};
   };
 
-
   #####################
   # post the new page #
   #####################
@@ -362,8 +374,12 @@ post '/url' => sub {
     redirect '/?keep=1';
     return;
   };
-  fetch_url($url);
-  redirect '/?keep=1';
+  my $path = fetch_url($url);	# URL copied to local upload directory
+  if ($path) {
+    redirect '/?keep=1&file='.$path->basename;
+  } else {
+    redirect '/?keep=1&urlfail='.$url;
+  };
 };
 
 
@@ -386,22 +402,8 @@ post '/upload' => sub {
   my $path = path($dir, $data->basename);
   $data->link_to($path);
 
-  ## import the file's content into a Demeter::Atoms object
-  $atoms->clear;
-  if ($path =~ m{cif\z}i) {
-    $atoms->cif($path);
-  } else {
-    if (Demeter->is_atoms($path)) {
-      $atoms->file($path);
-    } else {
-      redirect '/?keep=1&urlfail='.$path;
-      return;
-    };
-  };
-
-  ## clean up and redirect to the main page
-  unlink $path;
-  redirect '/?keep=1';
+  ## redirect with the name of the file in the server's diskspace
+  redirect '/?keep=1&file='.$data->basename;
 };
 
 
@@ -415,8 +417,9 @@ post '/fetch' => sub {
     redirect '/?keep=1';
     return;
   };
-  if (fetch_url($url)) {
-    redirect '/?keep=1';
+  my $path = fetch_url($url);	# URL copied to local upload directory
+  if ($path) {
+    redirect '/?keep=1&file='.$path->basename;
   } else {
     redirect '/?keep=1&urlfail='.$url;
   };
@@ -448,21 +451,21 @@ sub fetch_url {
   print $I $payload;
   close $I;
 
-  ## import the URL content into a Demeter::Atoms object
-  $atoms->clear;
-  if ($url =~ m{cif\z}i) {
-    $atoms->cif($path);
-  } else {
-    if (Demeter->is_atoms($path)) {
-      $atoms->file($path);
-    } else {
-      return 0;
-    };
-  };
+  # ## import the URL content into a Demeter::Atoms object
+  # $atoms->clear;
+  # if ($url =~ m{cif\z}i) {
+  #   $atoms->cif($path);
+  # } else {
+  #   if (Demeter->is_atoms($path)) {
+  #     $atoms->file($path);
+  #   } else {
+  #     return 0;
+  #   };
+  # };
 
-  ## clean up and done
-  unlink $path;
-  return 1;
+  # ## clean up and done
+  # unlink $path;
+  return $path;
 };
 
 

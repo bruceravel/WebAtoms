@@ -54,11 +54,13 @@
       </form>
       <form action="/fetch" method="POST" enctype="multipart/form-data">
 	<fieldset>
-	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file from the web (type URL, hit return) </legend>
+	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file from the web</legend>
 	  <span id="inputboxspan">
 	    <input type="text" name="url" width="100%" style="width: 95%;"
 		   title="Input the URL for an atoms.inp or CIF file on the web then hit return.">
-	    </span>
+	  </span><br>
+	  <span style="display:inline-block; width: 60%;"></span>
+	  <span style="font-size: 9px; align: right;">(input a URL, then hit return)</span>
 	</fieldset>
       </form>
 
