@@ -7,14 +7,14 @@
     <tr>
       <td width="50%">
 	<span style="display:inline-block; width: 15%;"></span>
-	<a href="<% request.uri_base %>" class="title">WebAtoms</a><br>
+	<a href="<% request.uri_base %>/" class="title">WebAtoms</a><br>
 	<span style="display:inline-block; width: 15%;"></span>
 	<span class="subtitle">Convert crystallographic data into a Feff input file</span>
       </td>
       <td width="50%">
 	<span style="display:inline-block; width: 2%;"></span><strong>Links:</strong>
 	<a href="http://cars9.uchicago.edu/mailman/listinfo/ifeffit/" target="_blank"
-	   title="The Ifeffit Mailing List is the best pace to ask questions about this web application, about the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
+	   title="The Ifeffit Mailing List is the best place to ask questions about this web application, about the Demeter software, and about XAFS.  Please use the mailing list rather than contacting the author of this web application directly.">Ifeffit Mailing List</a>&nbsp;&#183;
 	<a href="http://bruceravel.github.io/demeter/" target="_blank">Demeter</a>&nbsp;&#183;
 	<a href="http://feffproject.org/" target="_blank">Feff</a>&nbsp;&#183;
 	<a href="http://xraypy.github.io/xraylarch/" target="_blank">Larch</a>&nbsp;&#183;
@@ -52,29 +52,29 @@
 		 title="Select a file from your computer with the Browse button then import it by clicking this button">
 	</fieldset>
       </form>
-      <form action="/fetch" method="POST" enctype="multipart/form-data">
+      <form action="/url" method="GET">
 	<fieldset>
 	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file from the web</legend>
 	  <span id="inputboxspan">
 	    <input type="text" name="url" width="100%" style="width: 95%;"
-		   title="Input the URL for an atoms.inp or CIF file on the web then hit return.">
+		   title="Enter the URL for an atoms.inp or CIF file then hit return.">
 	  </span><br>
 	  <span style="display:inline-block; width: 60%;"></span>
-	  <span style="font-size: 9px; align: right;">(input a URL, then hit return)</span>
+	  <span style="font-size: 9px; align: right;">(enter a URL, then hit return)</span>
 	</fieldset>
       </form>
 
       <hr><br>
       
-      <form>
+      <form id="main" action="/read" method="POST" enctype="multipart/form-data">
 	<div id="lattice">
 	  <table>
 	    <tr>
-	      <td>&nbsp;&nbsp;Space group:</td><td><input type="text" name="space" size="12"
+	      <td>&nbsp;&nbsp;Space group:</td><td><input type="text" name="sp" size="12"
 	       	     					  title="Use the Hermann-Maguin or Sch&ouml;nflies symbol or a nickname like 'fcc'"
 							  value="<% space %>"></td>
 	      <td>&nbsp;&nbsp;Output:</td><td>
-		<select name="output" title="Specify the kind of output file" id="output">
+		<select name="ou" title="Specify the kind of output file" id="output">
 		  <% IF (matches = outfile.lower.match('^feff')) %>
 		  <option value="feff" selected>feff.inp</option>
 		  <% ELSE %>
@@ -134,7 +134,7 @@
 	    </tr>
 	    <tr>
 	      <td>&nbsp;&nbsp;Edge:</td><td>
-		<select name="edge" title="Absorption edge of the measurement and Feff calculation">
+		<select name="ed" title="Absorption edge of the measurement and Feff calculation">
 		  <% IF edge.lower == "k" %>
 		  <option value="K" selected>K</option>
 		  <% ELSE %>
@@ -161,7 +161,7 @@
 		</select>
 	      </td>
 	      <td>&nbsp;&nbsp;ipot style:</td><td>
-		<select name="style" title="Specify the Feff version and ipot styling">
+		<select name="st" title="Specify the Feff version and ipot styling">
 		  <% IF style.lower == "6elements" %>
 		  <option value="6elements" selected>Feff6 / elements</option>
 		  <% ELSE %>
@@ -211,9 +211,9 @@
 	      <td>&nbsp;&nbsp;C:</td><td><input type="text" name="c" size="10" value="<% c %>"></td>
 	    </tr>
 	    <tr title="The lattice angles in degrees, &alpha;=&angle;(b,c), &beta;=&angle;(a,c), &gamma;=&angle;(a,b)">
-	      <td>&nbsp;&nbsp;&alpha;:</td><td><input type="text" name="alpha" size="10" value="<% alpha %>"></td>
-	      <td>&nbsp;&nbsp;&beta;:</td><td><input type="text" name="beta" size="10" value="<% beta %>"></td>
-	      <td>&nbsp;&nbsp;&gamma;:</td><td><input type="text" name="gamma" size="10" value="<% gamma %>"></td>
+	      <td>&nbsp;&nbsp;&alpha;:</td><td><input type="text" name="al" size="10" value="<% alpha %>"></td>
+	      <td>&nbsp;&nbsp;&beta;: </td><td><input type="text" name="be" size="10" value="<% beta  %>"></td>
+	      <td>&nbsp;&nbsp;&gamma;:</td><td><input type="text" name="ga" size="10" value="<% gamma %>"></td>
 	    </tr>
 	  </table>
 	</div>
@@ -222,19 +222,19 @@
 	<div id="lattice">
 	  <table>
 	    <tr>
-	      <td>&nbsp;&nbsp;Cluster size:</td><td><input type="text" name="rclus" size="10" value="<% rclus %>"
+	      <td>&nbsp;&nbsp;Cluster size:</td><td><input type="text" name="rc" size="10" value="<% rclus %>"
 							   title="The radial extent of the cluster written to the feff.inp file"></td>
-	      <td>&nbsp;&nbsp;Longest path:</td><td><input type="text" name="rmax" size="10" value="<% rmax %>"
+	      <td>&nbsp;&nbsp;Longest path:</td><td><input type="text" name="rm" size="10" value="<% rmax %>"
 							   title="The longest path to be calculated by Feff's pathfinder, i.e. Feff's RMAX token"></td>
 	    </tr>
 	    <tr>
-	      <td>&nbsp;&nbsp;SCF radius:</td><td><input type="text" name="rscf" size="10" value="<% rscf %>"
+	      <td>&nbsp;&nbsp;SCF radius:</td><td><input type="text" name="rs" size="10" value="<% rscf %>"
 							 title="The radius used for computing self-consistent potentials in Feff8/9, i.e. the r_scf argument to Feff's SCF token"></td>
 	    </tr>
 	    <tr title="The shift vector used to recenter the crystal from a non-standard setting (use fractional coordinates!)">
-	      <td>&nbsp;&nbsp;Shift vector:</td><td><input type="text" name="shift_x" size="10" value="<% shift_x %>"></td>
-	      <td><input type="text" name="shift_y" size="10" value="<% shift_y %>"></td>
-	      <td><input type="text" name="shift_z" size="10" value="<% shift_z %>"></td>
+	      <td>&nbsp;&nbsp;Shift vector:</td><td><input type="text" name="sx" size="10" value="<% shift_x %>"></td>
+	      <td><input type="text" name="sy" size="10" value="<% shift_y %>"></td>
+	      <td><input type="text" name="sz" size="10" value="<% shift_z %>"></td>
 	    </tr>
 	  </table>
 	</div>
@@ -271,13 +271,21 @@
 	</table>
 
 	<p></p>
-	<div>
-	  <input type="submit" name="compute" value="Compute" style="font-weight: bold; color:#401490;">&nbsp;&nbsp;&nbsp;
-	  <input type="submit" name="reset"   value="Reset">
-	  <span style="display:inline-block; width: 30%;"></span>
-	  <input type="submit" name="add"     value="Add a site">
-	</div>
       </form>
+      
+      <form id="reset"   action="/reset" method="POST" enctype="multipart/form-data">      </form>
+
+      <form id="addsite" action="/" method="GET"  enctype="multipart/form-data">      </form>
+
+      <div>
+	<button form="main"    name="co" style="font-weight: bold; color:#401490;"
+		title="Click here to submit this form.">Compute</button>
+	<span style="display:inline-block; width: 30%;"></span>
+	<button form="reset"   name="re"
+		title="Discard all crystal data and reset the form.">Reset</button>
+	<button form="addsite" name="ad" value="add"
+		title="Add a site to the form.">Add a site</button>
+      </div>
     </div>
 
     <hr>

@@ -34,6 +34,7 @@ use Dancer ':syntax';
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
 use Chemistry::Elements qw(get_symbol);
+use File::Basename;
 use File::Copy;
 use List::Util qw(max);
 use List::MoreUtils; # not importing "any" to avoid collision with Dancer's "any"
@@ -47,6 +48,7 @@ our $VERSION = '1';
 our $atoms = Demeter::Atoms->new;
 our $warning_messages = q{};
 our $output = 'feff';
+our $maxsites = 5;
 
 get '/' => sub {
 
@@ -58,218 +60,55 @@ get '/' => sub {
   my $y = [];
   my $z = [];
   my $t = [];
-  my $nsites = 5;
+  my $nsites = $maxsites;
   my $icore  = 0;
   my $feffv  = q{};
+  my $final_redirect = 0;
 
-  my $add     = param('add');
-  my $reset   = param('reset');
-  my $compute = param('compute');
+  my $add     = param('ad');
+  my $reset   = param('re');
+  my $compute = param('co');
+  my $file    = param('file');
 
-  if (param('keep')) {
+  my $hashref = params;
+  my $nparams = keys(%$hashref);
+
+  if (defined($file) and $file) {
+    ## jigger sites into the form the template expects
     $nsites = $#{$atoms->sites};
     $nsites = 4 if $nsites == -1;
     foreach my $i (0 .. $nsites) {
-      next if not $atoms->sites->[$i];
-      ($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
-    };
-    if (defined(param('urlfail'))) {
-      $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
-    } elsif (defined(param('file'))) {
-      my $path = param('file');
-      $path = path(config->{appdir}, 'uploads', $path);
-      $atoms->clear;
-      if ($path =~ m{cif\z}i) {
-	$atoms->cif($path);
+      if ($atoms->sites->[$i]) {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
       } else {
-	if (Demeter->is_atoms($path)) {
-	  $atoms->file($path);
-	} else {
-	  $problems = "- unable to read $path as crystal data\n";
-	};
-      };
-      unlink $path;
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
+      }
     };
+  };
+
+  if (defined(param('urlfail'))) {
+    $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
 
   } elsif (defined($reset)) {
     $atoms->clear;
 
-  } else {
-    #####################################
-    # retrieve values from the web page #
-    #####################################
+  } elsif (defined($add)) {
+    1;
 
-    ## lattics constants, numbers
-    my $a      = param('a')	|| 0;
-    my $b      = param('b')	|| 0;
-    my $c      = param('c')	|| 0;
-    my $alpha  = param('alpha')	|| 90;
-    my $beta   = param('beta')	|| 90;
-    my $gamma  = param('gamma')	|| 90;
-
-    my @shift  = (param('shift_x')||0, param('shift_y')||0, param('shift_z')||0);
-
-    ## radii, numbers
-    my $rclus  = param('rclus')	|| 9;
-    my $rmax   = param('rmax')	|| 5;
-    my $rscf   = param('rscf')	|| 4;
-
-    my $space  = param('space')	|| q{};
-
-    ## string options
-    my $edge   = param('edge')	|| 'k';
-    my $style  = param('style')	|| '6el';
-    my ($v, $s) = (6, 'elements');
-    if ($style =~ m{\A([68])(elements|sites|tags)}i) {
-      ($v, $s) = ($1, $2);
+  } else {			# the form contents just got posted and we are redirected here
+    $problems = $atoms->message_buffer;
+    $nsites = $#{$atoms->sites};
+    $nsites = 4 if $nsites == -1;
+    ($e, $x, $y, $z, $t)= ([], [], [], [], []);
+    foreach my $i (0 .. $nsites) {
+      if ($atoms->sites->[$i]) {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
+      } else {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
+      }
+      $file = join('-', @$e);
+      $file =~ s{\-+\z}{};
     };
-    $output = param('output') || 'feff';
-    $feffv = ($output eq 'feff') ? $output.$v : $output;
-
-    $atoms->clear;
-
-
-    ##################################################
-    # sanitize the values retrived from the web page #
-    ##################################################
-
-    my ($val, $p);
-    ## lattics constants, numbers
-    ($val, $p) = check_number($b, 0, 'Lattice constant b', 0);
-    $problems .= $p;
-    $atoms->b($val) if $val;
-
-    ($val, $p) = check_number($c, 0, 'Lattice constant c', 0);
-    $problems .= $p;
-    $atoms->c($val) if $val;
-
-    ($val, $p) = check_number($a, 0, 'Lattice constant a', 0);
-    $problems .= $p;
-    $atoms->a($val);
-    $atoms->b($atoms->a) if ($atoms->b == 0);
-    $atoms->c($atoms->a) if ($atoms->c == 0);
-
-    ($val, $p) = check_number($beta,  90, 'Angle beta', 0);
-    $problems .= $p;
-    $atoms->beta($val);
-
-    ($val, $p) = check_number($gamma, 90, 'Angle gamma', 0);
-    $problems .= $p;
-    $atoms->gamma($val);
-
-    ($val, $p) = check_number($alpha, 90, 'Angle alpha', 0);
-    $problems .= $p;
-    $atoms->alpha($val);
-    $atoms->beta( $atoms->alpha) if ($atoms->beta  == 0);
-    $atoms->gamma($atoms->alpha) if ($atoms->gamma == 0);
-
-
-    ## shift vector, numbers, must be interpreted e.g. 1/3 -> 0.33333
-    @shift = map {_interpret($_)} @shift;
-    ($val, $p) = check_number($shift[0], 0, 'Shift vector X coordinate', 1);
-    $problems .= $p;
-    $shift[0] = $val;
-    ($val, $p) = check_number($shift[1], 0, 'Shift vector Y coordinate', 1);
-    $problems .= $p;
-    $shift[1] = $val;
-    ($val, $p) = check_number($shift[2], 0, 'Shift vector Z coordinate', 1);
-    $problems .= $p;
-    $shift[2] = $val;
-    $atoms->shiftvec(\@shift);
-
-
-    ## radii, numbers
-    ($val, $p) = check_number($rclus, 9, 'Cluster size', 0);
-    $problems .= $p;
-    $atoms->rmax($val) if $val;
-
-    ($val, $p) = check_number($rmax, 5, 'Longest path length', 0);
-    $problems .= $p;
-    $atoms->rpath($val) if $val;
-
-    ($val, $p) = check_number($rscf, 4, 'Self consistency radius', 0);
-    $problems .= $p;
-    $atoms->rscf($val) if $val;
-
-
-    ## lists, strings
-    if (List::MoreUtils::any {lc($edge) eq $_} qw(k l1 l2 l3)) {
-      $atoms->edge($edge);
-    } else {
-      $problems .= "- Edge is not one of K, L1, L2, or L3 (was $edge)\n";
-    };
-    if (List::MoreUtils::any {lc($s) eq $_} qw(elements tags sites)) {
-      $atoms->ipot_style($s);
-      $atoms->feff_version($v);
-    } else {
-      $problems .= "- Style is not one of elements, tags, or sites (was $s)\n";
-    };
-
-    $atoms->space($space) if defined $space;
-    $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
-    $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
-
-    ########################################
-    # retrieve and sanitize the atoms list #
-    ########################################
-
-    my $count = 100;		# try to figure out from the form data how many sites are defined
-    while ($count > -1) {
-      if (defined(param('e'.$count))) {
-	$nsites = $count+1;
-	last;
-      };
-      --$count;
-    };
-
-    my $core = param('core') || 0;
-    foreach my $i (0 .. $nsites-1) {
-      my $site_problems = q{};
-      $e->[$i] = param('e'.$i) || q{};
-      $x->[$i] = param('x'.$i) || 0;
-      $y->[$i] = param('y'.$i) || 0;
-      $z->[$i] = param('z'.$i) || 0;
-      $t->[$i] = param('t'.$i) || param('e'.$i) || q{};
-
-      $x->[$i] = _interpret($x->[$i]);
-      $y->[$i] = _interpret($y->[$i]);
-      $z->[$i] = _interpret($z->[$i]);
-
-      if ($e->[$i] and (not is_Element(get_symbol($e->[$i])))) {
-	$site_problems .= sprintf("- Symbol for site %d is not a valid element symbol (was $e->[$i])\n", $i+1);
-      };
-      ($val, $p) = check_number($x->[$i], 0, sprintf("x coordinate for site %d", $i+1), 1);
-      $site_problems .= $p;
-      $x->[$i] = $val;
-      ($val, $p) = check_number($y->[$i], 0, sprintf("y coordinate for site %d", $i+1), 1);
-      $site_problems .= $p;
-      $y->[$i] = $val;
-      ($val, $p) = check_number($z->[$i], 0, sprintf("z coordinate for site %d", $i+1), 1);
-      $site_problems .= $p;
-      $z->[$i] = $val;
-
-      $e->[$i] = get_symbol($e->[$i]);
-      if ($site_problems) {
-	$problems .= $site_problems;
-      } elsif (is_Element($e->[$i])) {
-	my $this = join("|",$e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]);
-	$atoms->push_sites($this);
-	$atoms->core($t->[$i]) if ($i == $core);
-      };
-    };
-    $icore = $core;
-
-    #$atoms->populate;
-    if (defined($compute)) {
-      $problems .= " - You have not specified a space group symbol.\n" if ($space    =~ m{\A\s*\z});
-      $problems .= " - You have not specified lattice constants.\n"    if ($a        == 0);
-      #$problems .= " - The b lattice constant is 0.\n"                 if ($atoms->b == 0);
-      #$problems .= " - The c lattice constant is 0.\n"                 if ($atoms->c == 0);
-      #$problems .= " - The alpha angle is 0.\n"                        if ($alpha    == 0);
-      #$problems .= " - The beta angle is 0.\n"                         if ($beta     == 0);
-      #$problems .= " - The gamma angle is 0.\n"                        if ($gamma    == 0);
-    };
-
   };
 
   my $additional = q{};
@@ -287,7 +126,6 @@ should try using that shift vector.
 
 ";
   };
-
 
   if ($problems) {
     $response = $problems;
@@ -310,7 +148,9 @@ should try using that shift vector.
     $response = $additional . $response;
     $warning_messages = q{};
   } else {
-    $response = q{};
+    $response = $atoms->message_buffer;
+    $atoms->message_buffer(q{});
+    ##$response = $atoms.$/;
   };
 
   #####################
@@ -320,6 +160,7 @@ should try using that shift vector.
   $nsites = 5 if $nsites < 5;
   if ($add) {
     ++$nsites;
+    ++$maxsites;
     push @$e, 'H';
     push @$x,  0;
     push @$y,  0;
@@ -336,9 +177,13 @@ should try using that shift vector.
     $outfile .= '.dat';
   };
 
+  if (defined($file) and ($file !~ m{\A\s*\z})) {
+    $file = ' - ' . $file;
+  };
+
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
-		     nsites    => $nsites,
+		     nsites    => $maxsites,
 		     space     => $atoms->space,
 		     a	       => $atoms->a,
 		     b	       => $atoms->b,
@@ -360,25 +205,219 @@ should try using that shift vector.
 		     y	       => $y,
 		     z	       => $z,
 		     t	       => $t,
+		     file      => $file,
 		     outfile   => $outfile,
 		     response  => $response};
+};
+
+
+post '/read' => sub {
+
+  my $e = [];
+  my $x = [];
+  my $y = [];
+  my $z = [];
+  my $t = [];
+  my $nsites = 5;
+  my $icore  = 0;
+  my $feffv  = q{};
+  my $problems = q{};
+  $atoms->message_buffer(q{});
+
+  #####################################
+  # retrieve values from the web page #
+  #####################################
+
+  ## lattice constants, numbers
+  my $a      = param('a')	|| 0;
+  my $b      = param('b')	|| 0;
+  my $c      = param('c')	|| 0;
+  my $alpha  = param('al')	|| 90;
+  my $beta   = param('be')	|| 90;
+  my $gamma  = param('ga')	|| 90;
+
+  my @shift  = (param('sx')||0, param('sy')||0, param('sz')||0);
+
+  ## radii, numbers
+  my $rclus  = param('rc')	|| 9;
+  my $rmax   = param('rm')	|| 5;
+  my $rscf   = param('rs')	|| 4;
+
+  my $space  = param('sp')	|| q{};
+
+  ## string options
+  my $edge   = param('ed')	|| 'k';
+  my $style  = param('st')	|| '6el';
+  my ($v, $s) = (6, 'elements');
+  if ($style =~ m{\A([68])(elements|sites|tags)}i) {
+    ($v, $s) = ($1, $2);
+  };
+  $output = param('ou') || 'feff';
+  $feffv = ($output eq 'feff') ? $output.$v : $output;
+
+  $atoms->clear;
+
+
+  ##################################################
+  # sanitize the values retrived from the web page #
+  ##################################################
+
+  my ($val, $p);
+  ## lattics constants, numbers
+  ($val, $p) = check_number($b, 0, 'Lattice constant b', 0);
+  $problems .= $p;
+  $atoms->b($val) if $val;
+
+  ($val, $p) = check_number($c, 0, 'Lattice constant c', 0);
+  $problems .= $p;
+  $atoms->c($val) if $val;
+
+  ($val, $p) = check_number($a, 0, 'Lattice constant a', 0);
+  $problems .= $p;
+  $atoms->a($val);
+  $atoms->b($atoms->a) if ($atoms->b == 0);
+  $atoms->c($atoms->a) if ($atoms->c == 0);
+
+  ($val, $p) = check_number($beta,  90, 'Angle beta', 0);
+  $problems .= $p;
+  $atoms->beta($val);
+
+  ($val, $p) = check_number($gamma, 90, 'Angle gamma', 0);
+  $problems .= $p;
+  $atoms->gamma($val);
+
+  ($val, $p) = check_number($alpha, 90, 'Angle alpha', 0);
+  $problems .= $p;
+  $atoms->alpha($val);
+  $atoms->beta( $atoms->alpha) if ($atoms->beta  == 0);
+  $atoms->gamma($atoms->alpha) if ($atoms->gamma == 0);
+
+
+  ## shift vector, numbers, must be interpreted e.g. 1/3 -> 0.33333
+  @shift = map {_interpret($_)} @shift;
+  ($val, $p) = check_number($shift[0], 0, 'Shift vector X coordinate', 1);
+  $problems .= $p;
+  $shift[0] = $val;
+  ($val, $p) = check_number($shift[1], 0, 'Shift vector Y coordinate', 1);
+  $problems .= $p;
+  $shift[1] = $val;
+  ($val, $p) = check_number($shift[2], 0, 'Shift vector Z coordinate', 1);
+  $problems .= $p;
+  $shift[2] = $val;
+  $atoms->shiftvec(\@shift);
+
+
+  ## radii, numbers
+  ($val, $p) = check_number($rclus, 9, 'Cluster size', 0);
+  $problems .= $p;
+  $atoms->rmax($val) if $val;
+
+  ($val, $p) = check_number($rmax, 5, 'Longest path length', 0);
+  $problems .= $p;
+  $atoms->rpath($val) if $val;
+
+  ($val, $p) = check_number($rscf, 4, 'Self consistency radius', 0);
+  $problems .= $p;
+  $atoms->rscf($val) if $val;
+
+
+  ## lists, strings
+  if (List::MoreUtils::any {lc($edge) eq $_} qw(k l1 l2 l3)) {
+    $atoms->edge($edge);
+  } else {
+    $problems .= "- Edge is not one of K, L1, L2, or L3 (was $edge)\n";
+  };
+  if (List::MoreUtils::any {lc($s) eq $_} qw(elements tags sites)) {
+    $atoms->ipot_style($s);
+    $atoms->feff_version($v);
+  } else {
+    $problems .= "- Style is not one of elements, tags, or sites (was $s)\n";
+  };
+
+  $atoms->space($space) if defined $space;
+  $atoms->cell->space_group($space); # why is this necessary!!!!!  why is the trigger not being triggered?????
+  $problems .= sprintf("- %s (was %s)\n", $atoms->cell->group->warning, $space) if $atoms->cell->group->warning;
+
+  ########################################
+  # retrieve and sanitize the atoms list #
+  ########################################
+
+  my $count = 100; # try to figure out from the form data how many sites are defined
+  while ($count > -1) {
+    if (defined(param('e'.$count))) {
+      $nsites = $count+1;
+      last;
+    };
+    --$count;
+  };
+
+  $atoms->clear_sites;
+  my $core = param('core') || 0;
+  foreach my $i (0 .. $nsites-1) {
+    my $site_problems = q{};
+    $e->[$i] = param('e'.$i) || q{};
+    $x->[$i] = param('x'.$i) || 0;
+    $y->[$i] = param('y'.$i) || 0;
+    $z->[$i] = param('z'.$i) || 0;
+    $t->[$i] = param('t'.$i) || param('e'.$i) || q{};
+
+    $x->[$i] = _interpret($x->[$i]);
+    $y->[$i] = _interpret($y->[$i]);
+    $z->[$i] = _interpret($z->[$i]);
+
+    if ($e->[$i] and (not is_Element(get_symbol($e->[$i])))) {
+      $site_problems .= sprintf("- Symbol for site %d is not a valid element symbol (was $e->[$i])\n", $i+1);
+    }
+    ;
+    ($val, $p) = check_number($x->[$i], 0, sprintf("x coordinate for site %d", $i+1), 1);
+    $site_problems .= $p;
+    $x->[$i] = $val;
+    ($val, $p) = check_number($y->[$i], 0, sprintf("y coordinate for site %d", $i+1), 1);
+    $site_problems .= $p;
+    $y->[$i] = $val;
+    ($val, $p) = check_number($z->[$i], 0, sprintf("z coordinate for site %d", $i+1), 1);
+    $site_problems .= $p;
+    $z->[$i] = $val;
+
+    $e->[$i] = get_symbol($e->[$i]);
+    if ($site_problems) {
+      $problems .= $site_problems;
+    } elsif (is_Element($e->[$i])) {
+      my $this = join("|",$e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]);
+      $atoms->push_sites($this);
+      $atoms->core($t->[$i]) if ($i == $core);
+    };
+  };
+  $icore = $core;
+
+  $problems .= " - You have not specified a space group symbol.\n" if ($space    =~ m{\A\s*\z});
+  $problems .= " - You have not specified lattice constants.\n"    if ($atoms->a == 0);
+  $atoms->message_buffer($problems);
+
+  redirect '/';
+};
+
+
+post '/reset' => sub {
+  $atoms->clear;
+  redirect '/';
 };
 
 
 ##########################################################################################
 # url route, read the provided URL, load data into an Atoms object, reroute to main page #
 ##########################################################################################
-post '/url' => sub {
+get '/url' => sub {
   my $url = param('url');
   if ($url =~ m{\A\s*\z}) {
-    redirect '/?keep=1';
+    redirect '/';
     return;
   };
-  my $path = fetch_url($url);	# URL copied to local upload directory
-  if ($path) {
-    redirect '/?keep=1&file='.$path->basename;
+  my $file = fetch_url($url);	# URL copied to local upload directory
+  if ($file) {
+    redirect '/?file='.$file;
   } else {
-    redirect '/?keep=1&urlfail='.$url;
+    redirect '/?urlfail='.$url;
   };
 };
 
@@ -390,7 +429,7 @@ post '/url' => sub {
 post '/upload' => sub {
   my $data = request->upload('file');
   if (not $data) {
-    redirect '/?keep=1';
+    redirect '/';
     return;
   };
 
@@ -402,8 +441,20 @@ post '/upload' => sub {
   my $path = path($dir, $data->basename);
   $data->link_to($path);
 
+  $atoms->clear;
+  if ($path =~ m{cif\z}i) {
+    $atoms->cif($path);
+  } else {
+    if (Demeter->is_atoms($path)) {
+      $atoms->file($path);
+    } else {
+      unlink $path;
+      redirect '/?urlfail='.$data->basename;
+    };
+  };
   ## redirect with the name of the file in the server's diskspace
-  redirect '/?keep=1&file='.$data->basename;
+  unlink $path;
+  redirect '/?file='.$data->basename;
 };
 
 
@@ -411,17 +462,17 @@ post '/upload' => sub {
 # fetch route, read the URL provided by the form, load data into an Atoms object #
 # reroute to main page 								 #
 ##################################################################################
-post '/fetch' => sub {
+get '/fetch' => sub {
   my $url = param('url');
   if ($url =~ m{\A\s*\z}) {
-    redirect '/?keep=1';
+    redirect '/';
     return;
   };
-  my $path = fetch_url($url);	# URL copied to local upload directory
-  if ($path) {
-    redirect '/?keep=1&file='.$path->basename;
+  my $file = fetch_url($url);	# URL copied to local upload directory
+  if ($file) {
+    redirect '/?file='.$file;
   } else {
-    redirect '/?keep=1&urlfail='.$url;
+    redirect '/?urlfail='.$url;
   };
 };
 
@@ -440,32 +491,33 @@ sub fetch_url {
   } else {
     return 0;
   };
+  my $file = basename($url);
 
   ## make sure the uploads directory exists
   my $dir = path(config->{appdir}, 'uploads');
   mkdir $dir if not -e $dir;
 
   ## write the URL content to a local file
-  my $path = path($dir, "fromweb");
+  my $path = path($dir, $file);
   open(my $I, '>', $path);
   print $I $payload;
   close $I;
 
-  # ## import the URL content into a Demeter::Atoms object
-  # $atoms->clear;
-  # if ($url =~ m{cif\z}i) {
-  #   $atoms->cif($path);
-  # } else {
-  #   if (Demeter->is_atoms($path)) {
-  #     $atoms->file($path);
-  #   } else {
-  #     return 0;
-  #   };
-  # };
+  ## import the URL content into a Demeter::Atoms object
+  $atoms->clear;
+  if ($url =~ m{cif\z}i) {
+    $atoms->cif($path);
+  } else {
+    if (Demeter->is_atoms($path)) {
+      $atoms->file($path);
+    } else {
+      return 0;
+    };
+  };
 
-  # ## clean up and done
-  # unlink $path;
-  return $path;
+  ## clean up and done
+  unlink $path;
+  return $file;
 };
 
 
@@ -490,9 +542,9 @@ sub check_number {
   my ($number, $default, $prefix, $negok) = @_;
   my $problem = q{};
   if ($number !~ m{\A$NUMBER\z}) {
-    $problem = "- $prefix was not a number (was $number)\n";
+    $problem = " - $prefix was not a number (was $number)\n";
   } elsif (($number < 0) and (not $negok)) {
-    $problem .= "- $prefix was negative (was $number)\n";
+    $problem .= " - $prefix was negative (was $number)\n";
   } else {
     $default = $number;
   };
