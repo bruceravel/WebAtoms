@@ -181,6 +181,10 @@ should try using that shift vector.
     $file = ' - ' . $file;
   };
 
+  foreach my $i (0 .. $#{$e}) {
+    $icore = $i if (($t->[$i] eq $atoms->core) or ($e->[$i] eq $atoms->core));
+  };
+
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
 		     nsites    => $maxsites,
