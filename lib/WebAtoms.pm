@@ -33,7 +33,7 @@ package WebAtoms;
 use Dancer ':syntax';
 use Demeter::Constants qw($NUMBER);
 use Demeter::StrTypes qw( Element );
-use Chemistry::Elements qw(get_symbol);
+use Chemistry::Elements qw(get_symbol get_Z);
 use File::Basename;
 use File::Copy;
 use List::Util qw(max);
@@ -73,11 +73,11 @@ get '/' => sub {
   my $hashref = params;
   my $nparams = keys(%$hashref);
 
+  # user just uploaded a file or fetched a URL
   if (defined($file) and $file) {
-    ## jigger sites into the form the template expects
     $nsites = $#{$atoms->sites};
     $nsites = 4 if $nsites == -1;
-    foreach my $i (0 .. $nsites) {
+    foreach my $i (0 .. $nsites) { # need to jigger sites into the form the template expects
       if ($atoms->sites->[$i]) {
 	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
       } else {
@@ -86,21 +86,25 @@ get '/' => sub {
     };
   };
 
+  # user just tried to read an unreadable/unusable local file or URL
   if (defined(param('urlfail'))) {
     $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
 
+  # user just clicked on the Reset button
   } elsif (defined($reset)) {
     $atoms->clear;
 
+  # user just clicked on the 'Add a site' button
   } elsif (defined($add)) {
     1;
 
-  } else {			# the form contents just got posted and we are redirected here
+  # the form contents just got posted and we are redirected here
+  } else {
     $problems = $atoms->message_buffer;
     $nsites = $#{$atoms->sites};
     $nsites = 4 if $nsites == -1;
     ($e, $x, $y, $z, $t)= ([], [], [], [], []);
-    foreach my $i (0 .. $nsites) {
+    foreach my $i (0 .. $nsites) { # need to jigger sites into the form the template expects
       if ($atoms->sites->[$i]) {
 	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
       } else {
@@ -111,6 +115,7 @@ get '/' => sub {
     };
   };
 
+  ## begin collecting error text as needed
   my $additional = q{};
 
   if ($atoms->cell->group->is_first and $#{$atoms->cell->group->shiftvec} > -1) {
@@ -127,35 +132,49 @@ should try using that shift vector.
 ";
   };
 
+
+
+  ## begin constructing the response text according to the current state of things
+
+
+  # problems found while reading the crystal data
   if ($problems) {
     $response = $problems;
     $output = "trouble";
+
+  # adding a site or resetting, response should be blank
   } elsif (defined($add) or defined($reset)) {
     $response = q{};
+
+  # response text contains problems found while processing crystal data
   } elsif ($atoms->cell->group->warning) {
     $response = $atoms->cell->group->warning;
     $output = "trouble";
+
+  # the user has asked to see the diagnostic text
   } elsif ($output eq 'object') {
     $response = $atoms->serialization;
     $additional .= $warning_messages;
     $additional = join("\n", map {' *!!! ' . $_} (split(/\n/, $additional))) . "\n\n" if ($additional !~ m{\A\s*\z});
     $response = $additional . $response;
     $warning_messages = q{};
+
+  # the normal state of things -- post the feff.inp file or other output
   } elsif ($#{$atoms->sites} > -1) {
     $response = $atoms->Write($feffv);
     $additional .= $warning_messages;
     $additional = join("\n", map {' *!!! ' . $_} (split(/\n/, $additional))) . "\n\n" if ($additional !~ m{\A\s*\z});
     $response = $additional . $response;
     $warning_messages = q{};
+
+  # the user is visiting the page for the first time
   } else {
     $response = $atoms->message_buffer;
     $atoms->message_buffer(q{});
     ##$response = $atoms.$/;
   };
 
-  #####################
-  # post the new page #
-  #####################
+  ## an additional site was requested
   $nsites = $#{$atoms->sites}+1;
   $nsites = 5 if $nsites < 5;
   if ($add) {
@@ -167,27 +186,34 @@ should try using that shift vector.
     push @$z,  0;
   };
 
+  ## figure out the default file name for saving the response
   my $style = $atoms->feff_version . $atoms->ipot_style;
   my $outfile = $output;
   if ($output =~ m{atoms|feff|p1}) {
     $outfile .= '.inp';
-  } elsif ($output =~ m{trouble}) {
-    $outfile .= '.txt';
+  #} elsif ($output =~ m{trouble}) {
+  #  $outfile .= '.txt';
   } else {
-    $outfile .= '.dat';
+    $outfile .= '.txt';
   };
 
+  ## make the title text for the generated web page look pretty
   if (defined($file) and ($file !~ m{\A\s*\z})) {
     $file = ' - ' . $file;
   };
 
+  ## make sure the correct site is selected as the absorber
   foreach my $i (0 .. $#{$e}) {
-    $icore = $i if (($t->[$i] eq $atoms->core) or ($e->[$i] eq $atoms->core));
+    $icore = $i if ((lc($t->[$i]) eq lc($atoms->core)) or (lc($e->[$i]) eq lc($atoms->core)));
   };
+  $icore = 0 if ($e->[$icore] =~ m{\A\s*\z});
 
+  #####################
+  # post the new page #
+  #####################
   template 'index', {dversion  => $Demeter::VERSION,
 		     waversion => $VERSION,
-		     nsites    => $maxsites,
+		     nsites    => max($nsites,$maxsites),
 		     space     => $atoms->space,
 		     a	       => $atoms->a,
 		     b	       => $atoms->b,
@@ -223,7 +249,6 @@ post '/read' => sub {
   my $z = [];
   my $t = [];
   my $nsites = 5;
-  my $icore  = 0;
   my $feffv  = q{};
   my $problems = q{};
   $atoms->message_buffer(q{});
@@ -346,7 +371,7 @@ post '/read' => sub {
   # retrieve and sanitize the atoms list #
   ########################################
 
-  my $count = 100; # try to figure out from the form data how many sites are defined
+  my $count = 50; # try to figure out from the form data how many sites are defined
   while ($count > -1) {
     if (defined(param('e'.$count))) {
       $nsites = $count+1;
@@ -389,10 +414,19 @@ post '/read' => sub {
     } elsif (is_Element($e->[$i])) {
       my $this = join("|",$e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]);
       $atoms->push_sites($this);
-      $atoms->core($t->[$i]) if ($i == $core);
+      if ($i == $core) {
+	$atoms->core($t->[$i]);
+      };
     };
   };
-  $icore = $core;
+  if ($atoms->core =~ m{\A\s*\z}) {
+    foreach my $i (0 .. $nsites-1) {
+      if ($t->[$i] !~ m{\A\s*\z}) {
+	$atoms->core($t->[$i]);
+	last;
+      };
+    };
+  };
 
   $problems .= " - You have not specified a space group symbol.\n" if ($space    =~ m{\A\s*\z});
   $problems .= " - You have not specified lattice constants.\n"    if ($atoms->a == 0);
@@ -402,6 +436,9 @@ post '/read' => sub {
 };
 
 
+#########################################################
+# reset route, clear the form, reroute to the main page #
+#########################################################
 post '/reset' => sub {
   $atoms->clear;
   redirect '/';
@@ -428,8 +465,8 @@ get '/url' => sub {
 
 ###############################################################################################
 # url route, read the provided filename, load data into an Atoms object, reroute to main page #
+# example found at http://perlmaven.com/uploading-files-with-dancer2                          #
 ###############################################################################################
-## thanks Gabor!  http://perlmaven.com/uploading-files-with-dancer2
 post '/upload' => sub {
   my $data = request->upload('file');
   if (not $data) {
@@ -481,9 +518,9 @@ get '/fetch' => sub {
 };
 
 
-#######################################################
-# this is the workhorse for the frtech and url routes #
-#######################################################
+######################################################
+# this is the workhorse for the fetch and url routes #
+######################################################
 sub fetch_url {
   my ($url) = @_;
 

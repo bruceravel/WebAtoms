@@ -76,7 +76,7 @@ a:hover {
     margin-top: 0%;
     float: left;
     width: calc(49% - 5px);
-    height: 85vh;
+    height: 80vh;
     overflow: auto;
     border-style: none;
     border-radius: 15px 0px 0px 15px;
@@ -256,7 +256,7 @@ code, tt {
     border-style: none;
     width: calc(49% - 10px);
     float: right;
-    height: 86.2vh;
+    height: 81.7vh;
     border-radius: 0px 15px 15px 0px;
 }
 
@@ -268,7 +268,7 @@ code, tt {
     margin-bottom: 5px;
     margin-top: 5px;
     border: none;
-    height: calc(100% - 50px);
+    height: calc(100% - 75px);
     /* background-color: #F1F0FA; */
     background-color: white;
     overflow-wrap: normal;

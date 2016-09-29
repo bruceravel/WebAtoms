@@ -299,7 +299,7 @@
       <a href="http://bruceravel.github.io/demeter/" target="_blank">Demeter</a> <% dversion %>.
     </div>
     <!-- </div> -->
-    <span style="display:inline-block; width: 20px;"></span>
+    <span style="display:inline-block; width: 40%;"></span>
     <a href="#" id="about_env_link">WebAtoms environment</a>
     <div id="about-content" style="display: none;">
       <table>
@@ -355,10 +355,11 @@
     <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
 <% response %>
     </textarea>
+    <hr>
     <% IF response %>
-    &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;">Save as <tt><% outfile %></tt></button>
+    <button id="btn-save" type="submit" class="btn btn-primary" style="width:90%; margin-left:5%">Save as <tt><% outfile %></tt></button>
     <% ELSE %>
-    &nbsp;<button id="btn-save" type="submit" class="btn btn-primary" style="margin-left: 20px;" disabled>Save as <tt><% outfile %></tt></button>
+    <button id="btn-save" type="submit" class="btn btn-primary" style="width:90%; margin-left:5%" disabled>Save as <tt><% outfile %></tt></button>
     <% END %>
     <!-- thanks to https://codepen.io/davidelrizzo/pen/cxsGb, https://github.com/eligrey/FileSaver.js, https://github.com/eligrey/Blob.js -->
     <script type="text/javascript">
