@@ -45,9 +45,10 @@ $SIG{__WARN__} = sub {accumulate($_[0])};
 
 our $VERSION = '1';
 
-our $atoms = Demeter::Atoms->new;
+our $atoms    = Demeter::Atoms->new;
 our $warning_messages = q{};
-our $output = 'feff';
+our $output   = 'feff';
+our $fversion = 6;
 our $maxsites = 5;
 
 get '/' => sub {
@@ -110,9 +111,9 @@ get '/' => sub {
       } else {
 	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
       }
-      $file = join('-', @$e);
-      $file =~ s{\-+\z}{};
     };
+    $file ||= join('-', List::MoreUtils::uniq(@$e));
+    $file =~ s{\-+\z}{};
   };
 
   ## begin collecting error text as needed
@@ -161,6 +162,7 @@ should try using that shift vector.
 
   # the normal state of things -- post the feff.inp file or other output
   } elsif ($#{$atoms->sites} > -1) {
+    $feffv = ($output eq 'feff') ? $output.$fversion : $output;
     $response = $atoms->Write($feffv);
     $additional .= $warning_messages;
     $additional = join("\n", map {' *!!! ' . $_} (split(/\n/, $additional))) . "\n\n" if ($additional !~ m{\A\s*\z});
@@ -282,7 +284,7 @@ post '/read' => sub {
     ($v, $s) = ($1, $2);
   };
   $output = param('ou') || 'feff';
-  $feffv = ($output eq 'feff') ? $output.$v : $output;
+  $fversion = $v;
 
   $atoms->clear;
 
