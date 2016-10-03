@@ -31,7 +31,7 @@
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/help.html" target="_blank">How to ask a good question</a>&nbsp;&#183;
 	<%- examples = [ "atoms/LaCoO3.inp", "atoms/Ba2Co9O14.cif", "atoms/Ga2O3.cif", "atoms/lepidocrocite.cif",
 	    "PbFe12O19.inp", "hematite.inp", "fe.inp" ] -%>
-	<a href="<% request.uri_base %>/url?url=https://raw.githubusercontent.com/bruceravel/demeter/master/examples/<% examples.${ Math.rand(examples.size) } %>">An example</a>
+	<a href="<% request.uri_base %>/?url=https://raw.githubusercontent.com/bruceravel/demeter/master/examples/<% examples.${ Math.rand(examples.size) } %>">An example</a>
       </td>
     </tr>
   </table>
@@ -44,15 +44,15 @@
   <div id="content">
 
     <div id="getting-started">
-      <form action="/upload" method="POST" enctype="multipart/form-data">
+      <form action="<% request.uri_base %>/fromdisk" method="POST" enctype="multipart/form-data">
 	<fieldset>
 	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file on your computer</legend>
-	  <input type="file" name="file">
+	  <input type="file"   name="lfile">
 	  <input type="submit" name="submit" value="Submit crystal data"
 		 title="Select a file from your computer with the Browse button then import it by clicking this button">
 	</fieldset>
       </form>
-      <form action="/url" method="GET">
+      <form action="<% request.uri_base %>/" method="GET">
 	<fieldset>
 	  <legend style="font-weight: bold;">Use an atoms.inp or CIF file from the web</legend>
 	  <span id="inputboxspan">
@@ -66,7 +66,7 @@
 
       <hr><br>
       
-      <form id="main" action="/read" method="POST" enctype="multipart/form-data">
+      <form id="main" action="<% request.uri_base %>/atomsinp" method="POST" enctype="multipart/form-data">
 	<div id="lattice">
 	  <table>
 	    <tr>
@@ -273,17 +273,17 @@
 	<p></p>
       </form>
       
-      <form id="reset"   action="/reset" method="POST" enctype="multipart/form-data">      </form>
+      <form id="reset"   action="<% request.uri_base %>/" method="GET" enctype="multipart/form-data"> </form>
 
-      <form id="addsite" action="/" method="GET"  enctype="multipart/form-data">      </form>
+      <form id="addsite" action="<% request.uri_base %>/" method="GET" enctype="multipart/form-data"> </form>
 
       <div>
 	<button form="main"    name="co" style="font-weight: bold; color:#401490;"
 		title="Click here to submit this form.">Compute</button>
 	<span style="display:inline-block; width: 30%;"></span>
-	<button form="reset"   name="re"
+	<button form="reset"   name="reset" value="1"
 		title="Discard all crystal data and reset the form.">Reset</button>
-	<button form="addsite" name="ad" value="add"
+	<button form="addsite" name="add"   value="1"
 		title="Add a site to the form.">Add a site</button>
       </div>
     </div>

@@ -66,10 +66,11 @@ get '/' => sub {
   my $feffv  = q{};
   my $final_redirect = 0;
 
-  my $add     = param('ad');
-  my $reset   = param('re');
+  my $add     = param('add');
+  my $reset   = param('reset');
   my $compute = param('co');
   my $file    = param('file');
+  my $url     = param('url');
 
   my $hashref = params;
   my $nparams = keys(%$hashref);
@@ -87,8 +88,24 @@ get '/' => sub {
     };
   };
 
+  # user supplied a URL
+  if (defined($url)) {
+    $file = fetch_url($url);	# URL copied to local upload directory
+    if (not $file) {
+      $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
+    };
+    $nsites = $#{$atoms->sites};
+    $nsites = 4 if $nsites == -1;
+    foreach my $i (0 .. $nsites) { # need to jigger sites into the form the template expects
+      if ($atoms->sites->[$i]) {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
+      } else {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
+      }
+    };
+
   # user just tried to read an unreadable/unusable local file or URL
-  if (defined(param('urlfail'))) {
+  } elsif (defined(param('urlfail'))) {
     $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
 
   # user just clicked on the Reset button
@@ -206,9 +223,10 @@ should try using that shift vector.
 
   ## make sure the correct site is selected as the absorber
   foreach my $i (0 .. $#{$e}) {
-    $icore = $i if ((lc($t->[$i]) eq lc($atoms->core)) or (lc($e->[$i]) eq lc($atoms->core)));
+    $icore = $i if (defined(lc($t->[$i])) and (lc($t->[$i]) eq lc($atoms->core)) or
+		    defined(lc($t->[$i])) and (lc($e->[$i]) eq lc($atoms->core)));
   };
-  $icore = 0 if ($e->[$icore] =~ m{\A\s*\z});
+  $icore = 0 if ((not defined($e->[$icore])) or ($e->[$icore] =~ m{\A\s*\z}));
 
   #####################
   # post the new page #
@@ -243,7 +261,7 @@ should try using that shift vector.
 };
 
 
-post '/read' => sub {
+post '/atomsinp' => sub {
 
   my $e = [];
   my $x = [];
@@ -441,36 +459,36 @@ post '/read' => sub {
 #########################################################
 # reset route, clear the form, reroute to the main page #
 #########################################################
-post '/reset' => sub {
-  $atoms->clear;
-  redirect '/';
-};
+# post '/reset' => sub {
+#   $atoms->clear;
+#   redirect '/?reset=1';
+# };
 
 
 ##########################################################################################
 # url route, read the provided URL, load data into an Atoms object, reroute to main page #
 ##########################################################################################
-get '/url' => sub {
-  my $url = param('url');
-  if ($url =~ m{\A\s*\z}) {
-    redirect '/';
-    return;
-  };
-  my $file = fetch_url($url);	# URL copied to local upload directory
-  if ($file) {
-    redirect '/?file='.$file;
-  } else {
-    redirect '/?urlfail='.$url;
-  };
-};
+# get '/url' => sub {
+#   my $url = param('url');
+#   if ($url =~ m{\A\s*\z}) {
+#     redirect '/';
+#     return;
+#   };
+#   my $file = fetch_url($url);	# URL copied to local upload directory
+#   if ($file) {
+#     redirect '/?file='.$file;
+#   } else {
+#     redirect '/?urlfail='.$url;
+#   };
+# };
 
 
-###############################################################################################
-# url route, read the provided filename, load data into an Atoms object, reroute to main page #
-# example found at http://perlmaven.com/uploading-files-with-dancer2                          #
-###############################################################################################
-post '/upload' => sub {
-  my $data = request->upload('file');
+#####################################################################################################
+# localfile route, read the provided filename, load data into an Atoms object, reroute to main page #
+# example found at http://perlmaven.com/uploading-files-with-dancer2                                #
+#####################################################################################################
+post '/fromdisk' => sub {
+  my $data = request->upload('lfile');
   if (not $data) {
     redirect '/';
     return;
@@ -505,19 +523,19 @@ post '/upload' => sub {
 # fetch route, read the URL provided by the form, load data into an Atoms object #
 # reroute to main page 								 #
 ##################################################################################
-get '/fetch' => sub {
-  my $url = param('url');
-  if ($url =~ m{\A\s*\z}) {
-    redirect '/';
-    return;
-  };
-  my $file = fetch_url($url);	# URL copied to local upload directory
-  if ($file) {
-    redirect '/?file='.$file;
-  } else {
-    redirect '/?urlfail='.$url;
-  };
-};
+# get '/fetch' => sub {
+#   my $url = param('url');
+#   if ($url =~ m{\A\s*\z}) {
+#     redirect '/';
+#     return;
+#   };
+#   my $file = fetch_url($url);	# URL copied to local upload directory
+#   if ($file) {
+#     redirect '/?file='.$file;
+#   } else {
+#     redirect '/?urlfail='.$url;
+#   };
+# };
 
 
 ######################################################
