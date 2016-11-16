@@ -49,7 +49,7 @@ our $atoms    = Demeter::Atoms->new;
 our $warning_messages = q{};
 our $output   = 'feff';
 our $fversion = 6;
-our $maxsites = 5;
+our $maxsites = 4;
 
 get '/' => sub {
 
@@ -195,7 +195,7 @@ should try using that shift vector.
 
   ## an additional site was requested
   $nsites = $#{$atoms->sites}+1;
-  $nsites = 5 if $nsites < 5;
+  $nsites = 4 if $nsites < 4;
   if ($add) {
     ++$nsites;
     ++$maxsites;
@@ -268,7 +268,7 @@ post '/atomsinp' => sub {
   my $y = [];
   my $z = [];
   my $t = [];
-  my $nsites = 5;
+  my $nsites = 4;
   my $feffv  = q{};
   my $problems = q{};
   $atoms->message_buffer(q{});
