@@ -19,7 +19,8 @@
 	<a href="http://feffproject.org/" target="_blank">Feff</a>&nbsp;&#183;
 	<a href="http://xraypy.github.io/xraylarch/" target="_blank">Larch</a>&nbsp;&#183;
 	<a href="https://github.com/newville/ifeffit" target="_blank">Ifeffit</a>&nbsp;&#183;
-	<a href="http://xafs.org/">xafs.org</a>
+	<a href="http://xafs.org/" target="_blank">xafs.org</a>&nbsp;&#183;
+	<a href="http://cars9.uchicago.edu/~newville/adb/search.html" target="_blank" title="Small archive of atoms.inp files">Database</a>
 	<br>
 	<span style="display:inline-block; width: 2%;"></span><strong>Manuals:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html" target="_blank">WebAtoms</a>&nbsp;&#183;
@@ -301,6 +302,7 @@
       &nbsp;&nbsp;<a href="#" id="about_env_link" style="foo:none"
 		     title="Click here to display/hide information about the WebAtoms operating environment">&#10148;</a>
     </div>
+    <br>
     <div id="about-content" style="display: none;">
       <table>
 	<tbody>
