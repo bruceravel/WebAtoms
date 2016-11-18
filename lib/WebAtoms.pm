@@ -48,7 +48,8 @@ our $VERSION = '1';
 our $atoms    = Demeter::Atoms->new;
 our $warning_messages = q{};
 our $output   = 'feff';
-our $fversion = 6;
+our $fversion = 8;
+$atoms->feff_version($fversion);
 our $maxsites = 4;
 
 get '/' => sub {
@@ -151,9 +152,7 @@ should try using that shift vector.
   };
 
 
-
   ## begin constructing the response text according to the current state of things
-
 
   # problems found while reading the crystal data
   if ($problems) {
@@ -206,7 +205,8 @@ should try using that shift vector.
   };
 
   ## figure out the default file name for saving the response
-  my $style = $atoms->feff_version . $atoms->ipot_style;
+  #my $style = $atoms->feff_version . $atoms->ipot_style;
+  my $style = '8' . $atoms->ipot_style;
   my $outfile = $output;
   if ($output =~ m{atoms|feff|p1}) {
     $outfile .= '.inp';
@@ -296,8 +296,8 @@ post '/atomsinp' => sub {
 
   ## string options
   my $edge   = param('ed')	|| 'k';
-  my $style  = param('st')	|| '6el';
-  my ($v, $s) = (6, 'elements');
+  my $style  = param('st')	|| '8elements';
+  my ($v, $s) = (8, 'elements');
   if ($style =~ m{\A([68])(elements|sites|tags)}i) {
     ($v, $s) = ($1, $2);
   };
@@ -495,8 +495,9 @@ post '/fromdisk' => sub {
   };
 
   ## make sure the uploads directory exists
-  my $dir = path(config->{appdir}, 'uploads');
-  mkdir $dir if not -e $dir;
+  #my $dir = path(config->{appdir}, 'uploads');
+  #mkdir $dir if not -e $dir;
+  my $dir = File::Spec->tmpdir();
 
   ## copy the file to the server's disk space
   my $path = path($dir, $data->basename);
@@ -555,8 +556,9 @@ sub fetch_url {
   my $file = basename($url);
 
   ## make sure the uploads directory exists
-  my $dir = path(config->{appdir}, 'uploads');
-  mkdir $dir if not -e $dir;
+  #my $dir = path(config->{appdir}, 'uploads');
+  #mkdir $dir if not -e $dir;
+  my $dir = File::Spec->tmpdir();
 
   ## write the URL content to a local file
   my $path = path($dir, $file);

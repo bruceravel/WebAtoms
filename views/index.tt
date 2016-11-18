@@ -22,9 +22,10 @@
 	<a href="http://xafs.org/">xafs.org</a>
 	<br>
 	<span style="display:inline-block; width: 2%;"></span><strong>Manuals:</strong>
-	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html" target="_blank">WebAtoms Manual</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html"  target="_blank">Athena Manual</a>&nbsp;&#183;
-	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html" target="_blank">Artemis Manual</a>
+	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/wa.html" target="_blank">WebAtoms</a>&nbsp;&#183;
+	<a href="http://leonardo.phys.washington.edu/feff/wiki/static/f/e/f/FEFF_Documentation_b0ae.html"  target="_blank">Feff</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Athena/index.html"  target="_blank">Athena</a>&nbsp;&#183;
+	<a href="http://bruceravel.github.io/demeter/documents/Artemis/index.html" target="_blank">Artemis</a>
 	<br>
 	<span style="display:inline-block; width: 2%;"></span><strong>Troubleshooting:</strong>
 	<a href="http://bruceravel.github.io/demeter/documents/SinglePage/bugs.html" target="_blank">Bug reporting hints</a>&nbsp;&#183;
@@ -64,7 +65,7 @@
 	</fieldset>
       </form>
 
-      <hr><br>
+      <br>
       
       <form id="main" action="<% request.uri_base %>/atomsinp" method="POST" enctype="multipart/form-data">
 	<div id="lattice">
@@ -297,10 +298,9 @@
       powered by <a href="http://perldancer.org/" target="_blank">Dancer</a>
       <% dancer_version %> and
       <a href="http://bruceravel.github.io/demeter/" target="_blank">Demeter</a> <% dversion %>.
+      &nbsp;&nbsp;<a href="#" id="about_env_link" style="foo:none"
+		     title="Click here to display/hide information about the WebAtoms operating environment">&#10148;</a>
     </div>
-    <!-- </div> -->
-    <span style="display:inline-block; width: 40%;"></span>
-    <a href="#" id="about_env_link">WebAtoms environment</a>
     <div id="about-content" style="display: none;">
       <table>
 	<tbody>
@@ -345,6 +345,16 @@
       $('#about-content').slideToggle('fast', function() {
       // ok
       });
+      if (document.getElementById('about_env_link').style.foo == 'none')
+      {
+         document.getElementById('about_env_link').innerHTML = '&#10148;';
+         document.getElementById('about_env_link').style.foo = '';
+      }
+      else
+      {
+         document.getElementById('about_env_link').innerHTML = '&#10060;';
+         document.getElementById('about_env_link').style.foo = 'none';
+      };
       return( false );
       });
     </script>
