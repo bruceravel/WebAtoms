@@ -65,13 +65,13 @@ get '/' => sub {
   my $nsites = $maxsites;
   my $icore  = 0;
   my $feffv  = q{};
-  my $final_redirect = 0;
 
   my $add     = param('add');
   my $reset   = param('reset');
   my $compute = param('co');
   my $file    = param('file');
   my $url     = param('url');
+  my $form    = param('form');
 
   my $hashref = params;
   my $nparams = keys(%$hashref);
@@ -87,10 +87,9 @@ get '/' => sub {
 	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
       }
     };
-  };
 
   # user supplied a URL
-  if (defined($url)) {
+  } elsif (defined($url)) {
     $file = fetch_url($url);	# URL copied to local upload directory
     if (not $file) {
       $problems = "- Unable to download " . param('urlfail') . " or file is not an atoms.inp file\n";
@@ -115,10 +114,17 @@ get '/' => sub {
 
   # user just clicked on the 'Add a site' button
   } elsif (defined($add)) {
-    1;
+    $nsites = $#{$atoms->sites};
+    foreach my $i (0 .. $nsites) { # need to jigger sites into the form the template expects
+      if ($atoms->sites->[$i]) {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = split(/\|/, $atoms->sites->[$i]);
+      } else {
+	($e->[$i], $x->[$i], $y->[$i], $z->[$i], $t->[$i]) = (q{},0,0,0,q{});
+      }
+    };
 
   # the form contents just got posted and we are redirected here
-  } else {
+  } elsif (defined($form)) {
     $problems = $atoms->message_buffer;
     $nsites = $#{$atoms->sites};
     $nsites = 4 if $nsites == -1;
@@ -132,6 +138,8 @@ get '/' => sub {
     };
     $file ||= join('-', List::MoreUtils::uniq(@$e));
     $file =~ s{\-+\z}{};
+  } else {
+    $atoms->clear;
   };
 
   ## begin collecting error text as needed
@@ -202,6 +210,7 @@ should try using that shift vector.
     push @$x,  0;
     push @$y,  0;
     push @$z,  0;
+    push @$t,  q{};
   };
 
   ## figure out the default file name for saving the response
@@ -223,8 +232,8 @@ should try using that shift vector.
 
   ## make sure the correct site is selected as the absorber
   foreach my $i (0 .. $#{$e}) {
-    $icore = $i if (defined(lc($t->[$i])) and (lc($t->[$i]) eq lc($atoms->core)) or
-		    defined(lc($t->[$i])) and (lc($e->[$i]) eq lc($atoms->core)));
+    $icore = $i if (defined(lc($t->[$i])) and defined($atoms->core) and (lc($t->[$i]) eq lc($atoms->core)) or
+		    defined(lc($t->[$i])) and defined($atoms->core) and (lc($e->[$i]) eq lc($atoms->core)));
   };
   $icore = 0 if ((not defined($e->[$icore])) or ($e->[$icore] =~ m{\A\s*\z}));
 
@@ -452,35 +461,8 @@ post '/atomsinp' => sub {
   $problems .= " - You have not specified lattice constants.\n"    if ($atoms->a == 0);
   $atoms->message_buffer($problems);
 
-  redirect '/';
+  redirect '/?form=1';
 };
-
-
-#########################################################
-# reset route, clear the form, reroute to the main page #
-#########################################################
-# post '/reset' => sub {
-#   $atoms->clear;
-#   redirect '/?reset=1';
-# };
-
-
-##########################################################################################
-# url route, read the provided URL, load data into an Atoms object, reroute to main page #
-##########################################################################################
-# get '/url' => sub {
-#   my $url = param('url');
-#   if ($url =~ m{\A\s*\z}) {
-#     redirect '/';
-#     return;
-#   };
-#   my $file = fetch_url($url);	# URL copied to local upload directory
-#   if ($file) {
-#     redirect '/?file='.$file;
-#   } else {
-#     redirect '/?urlfail='.$url;
-#   };
-# };
 
 
 #####################################################################################################
@@ -518,25 +500,6 @@ post '/fromdisk' => sub {
   unlink $path;
   redirect '/?file='.$data->basename;
 };
-
-
-##################################################################################
-# fetch route, read the URL provided by the form, load data into an Atoms object #
-# reroute to main page 								 #
-##################################################################################
-# get '/fetch' => sub {
-#   my $url = param('url');
-#   if ($url =~ m{\A\s*\z}) {
-#     redirect '/';
-#     return;
-#   };
-#   my $file = fetch_url($url);	# URL copied to local upload directory
-#   if ($file) {
-#     redirect '/?file='.$file;
-#   } else {
-#     redirect '/?urlfail='.$url;
-#   };
-# };
 
 
 ######################################################
