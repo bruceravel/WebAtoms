@@ -111,6 +111,7 @@ get '/' => sub {
   # user just clicked on the Reset button
   } elsif (defined($reset)) {
     $atoms->clear;
+    $atoms->feff_version($fversion);
 
   # user just clicked on the 'Add a site' button
   } elsif (defined($add)) {
@@ -140,6 +141,7 @@ get '/' => sub {
     $file =~ s{\-+\z}{};
   } else {
     $atoms->clear;
+    $atoms->feff_version($fversion);
   };
 
   ## begin collecting error text as needed
@@ -315,6 +317,7 @@ post '/atomsinp' => sub {
   $fversion = $v;
 
   $atoms->clear;
+  $atoms->feff_version($fversion);
 
 
   ##################################################
@@ -487,6 +490,7 @@ post '/fromdisk' => sub {
   $data->link_to($path);
 
   $atoms->clear;
+  $atoms->feff_version($fversion);
   if ($path =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {
@@ -532,6 +536,7 @@ sub fetch_url {
 
   ## import the URL content into a Demeter::Atoms object
   $atoms->clear;
+  $atoms->feff_version($fversion);
   if ($url =~ m{cif\z}i) {
     $atoms->cif($path);
   } else {
