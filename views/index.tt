@@ -364,9 +364,8 @@
     
 
   <div id="response">
-    <textarea rows="30" cols="50" name="response" id="atomsoutput">  <%# see http://stackoverflow.com/a/8136701 #%>
-<% response %>
-    </textarea>
+    <%# see http://stackoverflow.com/a/8136701 #%>
+    <textarea rows="30" cols="50" name="response" id="atomsoutput"><% response %></textarea>
     <hr>
     <% IF response %>
     <button id="btn-save" type="submit" class="btn btn-primary" style="width:90%; margin-left:5%">Save as <tt><% outfile %></tt></button>
@@ -378,7 +377,7 @@
       $("#btn-save").click( function() {
       var text = $("#atomsoutput").val();
       var filename = "<% outfile %>";
-      var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+      var blob = new Blob([text], {type: "text/plain;charset=iso-8859-1"});
       saveAs(blob, filename);
       });
     </script>
